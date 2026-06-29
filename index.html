@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>🌾 Nông Trại Nâng Cấp</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; font-family: 'Segoe UI', system-ui, sans-serif; }
+    body { background: #0f0e17; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 10px; }
+    #app { max-width: 420px; width: 100%; background: #f9f3e8; border-radius: 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); overflow: hidden; border: 3px solid #d9c9b4; }
+    
+    /* HEADER */
+    #header { background: linear-gradient(145deg, #6b4f3c, #4d3425); padding: 12px 16px; color: #ffecdb; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #c7a184; }
+    #header .info { display: flex; gap: 12px; font-weight: bold; font-size: 0.85rem; background: #2d1f16; padding: 4px 14px; border-radius: 30px; }
+    #header .info span { color: #ffd966; }
+    #header .user { display: flex; align-items: center; gap: 6px; background: #3d2b1f; padding: 4px 12px; border-radius: 30px; }
+    #header .user #usernameDisplay { font-weight: bold; color: #fae3c0; font-size: 0.85rem; }
+    .btn { background: #6b4f3c; border: none; color: white; padding: 8px 20px; border-radius: 40px; font-weight: bold; font-size: 0.85rem; cursor: pointer; box-shadow: 0 4px 0 #3d2b1f; transition: 0.07s; border: 2px solid #b88d6e; }
+    .btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #3d2b1f; }
+    .btn-success { background: #4c8b5c; box-shadow: 0 4px 0 #2a5a36; border-color: #78b38a; }
+    .btn-danger { background: #b3453a; box-shadow: 0 4px 0 #762b23; border-color: #d97a6e; }
+    .btn-warning { background: #c97e2a; box-shadow: 0 4px 0 #8a5518; border-color: #e6a558; }
+    .btn-info { background: #3d7a9e; box-shadow: 0 4px 0 #1e4b63; border-color: #6da5c9; }
+    .btn-sm { padding: 4px 12px; font-size: 0.7rem; }
+
+    /* LOGIN */
+    #loginScreen { padding: 30px 20px; background: linear-gradient(180deg, #e8d5c0, #dac2ab); display: flex; flex-direction: column; align-items: center; gap: 14px; }
+    #loginScreen h2 { font-size: 2rem; color: #4d2e1b; text-shadow: 0 3px 0 #b3927a; }
+    #loginScreen input { width: 90%; padding: 12px 18px; border: none; border-radius: 50px; background: #fef7ee; box-shadow: inset 0 4px 6px rgba(0,0,0,0.1); font-size: 1rem; outline: 2px solid transparent; transition: 0.2s; }
+    #loginScreen input:focus { outline: 2px solid #c79a6e; }
+    .btn-group { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 4px; }
+    #loginError { color: #b13022; font-weight: bold; background: #ffd9d4; padding: 4px 18px; border-radius: 30px; display: none; }
+
+    /* GAME */
+    #gameScreen { display: none; padding: 8px 12px 12px; }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; background: #dac9b8; padding: 6px; border-radius: 30px; margin: 4px 0 8px; }
+    .toolbar .btn { padding: 5px 12px; font-size: 0.7rem; }
+
+    /* FARM GRID */
+    #farmGrid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; background: #a6c8a0; padding: 10px; border-radius: 28px; border: 4px solid #7f9f78; box-shadow: inset 0 0 0 3px #5d7a56; }
+    .cell { aspect-ratio: 1/1; background: #72a56b; border-radius: 14px; box-shadow: inset 0 -4px 0 #4d7a46; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 2rem; transition: 0.1s; cursor: pointer; border: 2px solid #5d8a55; position: relative; }
+    .cell:active { transform: scale(0.93); }
+    .cell .growth { position: absolute; bottom: 2px; right: 4px; background: #203a1b; color: #c6f0b0; font-size: 0.5rem; padding: 0 5px; border-radius: 10px; font-weight: bold; }
+    .cell .deco { font-size: 1.8rem; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2)); }
+
+    /* PET */
+    #petArea { display: flex; gap: 12px; justify-content: center; background: #b8d2b0; padding: 10px 8px; border-radius: 40px; margin: 8px 0; border: 3px solid #6d9463; flex-wrap: wrap; }
+    .pet-card { background: #f5efe6; padding: 6px 14px 10px; border-radius: 40px; box-shadow: inset 0 -4px 0 #b7a08b; display: flex; flex-direction: column; align-items: center; flex: 1; min-width: 80px; }
+    .pet-card .emoji { font-size: 2.2rem; }
+    .pet-card .name { font-weight: bold; font-size: 0.65rem; color: #2d3e24; }
+    .pet-card .mood { font-size: 0.6rem; color: #674f3a; }
+    .pet-card .btn { font-size: 0.55rem; padding: 3px 10px; margin-top: 3px; }
+
+    /* SHOP & TASK */
+    #shopPanel, #taskPanel { background: #ded0bf; border-radius: 28px; padding: 8px 14px; margin-top: 8px; border: 2px solid #b9a48e; }
+    #shopPanel { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+    #shopPanel .btn { font-size: 0.6rem; padding: 4px 10px; }
+    #taskPanel { display: flex; justify-content: space-between; font-size: 0.7rem; color: #2d241c; flex-wrap: wrap; }
+    #taskPanel span { background: #f5ede4; padding: 2px 12px; border-radius: 40px; margin: 2px 0; }
+
+    #footerBar { display: flex; justify-content: space-between; margin: 8px 0 4px; padding: 0 8px; }
+    #versionInfo { font-size: 0.6rem; color: #5d4a38; background: #dfcebc; padding: 4px 14px; border-radius: 30px; }
+
+    /* RAID BANNER */
+    #raidBanner { background: linear-gradient(90deg, #a13022, #cc4a3a); color: #ffecbb; padding: 8px 14px; border-radius: 40px; text-align: center; font-weight: bold; margin: 4px 0 6px; display: none; align-items: center; justify-content: space-between; border: 3px solid #f5b38b; box-shadow: 0 0 16px #ff7f4f; }
+    #raidBanner .btn { font-size: 0.7rem; padding: 4px 14px; }
+
+    /* NOTIFICATION */
+    #notif { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #2d1f16; color: #ffecdb; padding: 10px 24px; border-radius: 40px; font-weight: bold; box-shadow: 0 8px 24px rgba(0,0,0,0.6); display: none; z-index: 999; max-width: 90%; text-align: center; border: 2px solid #b88d6e; }
+    #notif.show { display: block; animation: popIn 0.3s ease; }
+    @keyframes popIn { 0% { opacity: 0; transform: translateX(-50%) scale(0.8); } 100% { opacity: 1; transform: translateX(-50%) scale(1); } }
+
+    @media (max-width: 440px) { .cell { font-size: 1.5rem; } .toolbar .btn { font-size: 0.55rem; padding: 3px 8px; } #header .info { font-size: 0.65rem; padding: 3px 10px; } }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <div id="header">
+    <div class="info">🪙 <span id="goldDisplay">0</span> | ⭐ <span id="levelDisplay">1</span></div>
+    <div class="user">👤 <span id="usernameDisplay">Guest</span> <button id="logoutBtn" class="btn btn-sm btn-danger" style="padding:2px 10px;">✕</button></div>
+  </div>
+
+  <!-- LOGIN -->
+  <div id="loginScreen">
+    <h2>🌾 Nông Trại</h2>
+    <input type="text" id="loginUser" placeholder="Tên đăng nhập" value="nongdan">
+    <input type="password" id="loginPass" placeholder="Mật khẩu" value="123456">
+    <div id="loginError">⚠️ Sai tài khoản hoặc mật khẩu</div>
+    <div class="btn-group">
+      <button class="btn btn-success" id="loginBtn">🔓 Đăng nhập</button>
+      <button class="btn btn-info" id="registerBtn">📝 Đăng ký</button>
+    </div>
+  </div>
+
+  <!-- GAME -->
+  <div id="gameScreen">
+    <div class="toolbar">
+      <button class="btn btn-success" id="plantBtn">🌱 Trồng</button>
+      <button class="btn btn-warning" id="harvestBtn">🧺 Thu hoạch</button>
+      <button class="btn btn-info" id="shopBtn">🏪 Shop</button>
+      <button class="btn" id="taskBtn">📋 Nhiệm vụ</button>
+    </div>
+
+    <div id="farmGrid"></div>
+
+    <div id="petArea">
+      <div class="pet-card" data-pet="0"><span class="emoji">🐥</span><span class="name">Gà vàng</span><span class="mood">😊 Vui vẻ</span><button class="btn btn-sm btn-success feedPetBtn">🍞 Cho ăn</button></div>
+      <div class="pet-card" data-pet="1"><span class="emoji">🐕</span><span class="name">Chó cỏ</span><span class="mood">😄 Hạnh phúc</span><button class="btn btn-sm btn-success feedPetBtn">🦴 Cho ăn</button></div>
+      <div class="pet-card" data-pet="2"><span class="emoji">🐱</span><span class="name">Mèo lười</span><span class="mood">😺 Tinh nghịch</span><button class="btn btn-sm btn-success feedPetBtn">🐟 Cho ăn</button></div>
+    </div>
+
+    <div id="raidBanner"><span>👹 BĂNG CƯỚP ĐANG TẤN CÔNG!</span><button class="btn btn-danger" id="defendBtn">🛡️ Đánh đuổi</button></div>
+
+    <div id="shopPanel">
+      <button class="btn btn-sm btn-success" data-seed="potato">🥔 Khoai (8🪙)</button>
+      <button class="btn btn-sm btn-success" data-seed="carrot">🥕 Cà rốt (12🪙)</button>
+      <button class="btn btn-sm btn-success" data-seed="wheat">🌾 Lúa (18🪙)</button>
+      <button class="btn btn-sm btn-success" data-seed="watermelon">🍉 Dưa hấu (25🪙)</button>
+      <button class="btn btn-sm btn-success" data-seed="grape">🍇 Nho (30🪙)</button>
+      <button class="btn btn-sm btn-info" id="buyPetFoodBtn">🍖 Thức ăn pet (5🪙)</button>
+    </div>
+
+    <div id="taskPanel">
+      <span>📋 Nhiệm vụ: <span id="taskDesc">Trồng 5 cây</span></span>
+      <span>🎯 Tiến độ: <span id="taskProgress">0/5</span></span>
+      <span>🏆 Thưởng: <span id="taskReward">+20🪙</span></span>
+    </div>
+
+    <div id="footerBar">
+      <span id="versionInfo">📦 v2.0.0</span>
+      <button class="btn btn-sm btn-info" id="saveBtn">💾 Lưu</button>
+    </div>
+  </div>
+</div>
+
+<div id="notif"></div>
+
+<script>
+// ============================================================
+//  🚀  NÔNG TRẠI NÂNG CẤP - V2.0
+// ============================================================
+
+// ---- CẤU HÌNH ----
+const CONFIG = {
+  version: '2.0.0',
+  remoteConfigUrl: 'https://raw.githubusercontent.com/cutephomaique12/N-ng-Tr-i-N-i-Lo-n/refs/heads/main/config.json',
+};
+
+// ---- CÂY TRỒNG ----
+const PLANTS = {
+  potato: { name: 'Khoai tây', emoji: '🥔', growTime: 8, price: 8, sell: 18, exp: 4 },
+  carrot: { name: 'Cà rốt', emoji: '🥕', growTime: 12, price: 12, sell: 28, exp: 6 },
+  wheat: { name: 'Lúa mì', emoji: '🌾', growTime: 16, price: 18, sell: 40, exp: 9 },
+  watermelon: { name: 'Dưa hấu', emoji: '🍉', growTime: 22, price: 25, sell: 55, exp: 14 },
+  grape: { name: 'Nho', emoji: '🍇', growTime: 18, price: 30, sell: 65, exp: 12 },
+};
+
+// ---- STATE ----
+let state = {
+  username: '', gold: 120, level: 1, exp: 0,
+  farm: [],
+  pets: [
+    { name: 'Gà vàng', emoji: '🐥', hunger: 80, happiness: 80, age: 0 },
+    { name: 'Chó cỏ', emoji: '🐕', hunger: 70, happiness: 85, age: 0 },
+    { name: 'Mèo lười', emoji: '🐱', hunger: 75, happiness: 75, age: 0 }
+  ],
+  houseCount: 0, decoCount: 0,
+  task: { type: 'plant', target: 5, progress: 0, reward: 20, done: false },
+  isRaid: false,
+  lastSave: Date.now()
+};
+
+// ---- NOTIFICATION ----
+function notif(msg) { const el = document.getElementById('notif'); el.textContent = msg; el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 2500); }
+
+// ---- FARM ----
+function createEmptyFarm() { return Array(36).fill(null).map(() => ({ type: 'empty' })); }
+
+// ---- SAVE / LOAD ----
+function saveGame() {
+  if (!state.username) return;
+  localStorage.setItem('farmGame_v2_' + state.username, JSON.stringify(state));
+}
+function loadGame(username) {
+  const raw = localStorage.getItem('farmGame_v2_' + username);
+  if (raw) { try { const data = JSON.parse(raw); Object.assign(state, data); return true; } catch(e) {} }
+  return false;
+}
+
+// ---- LOGIN ----
+function registerUser(u, p) {
+  if (!u || !p) return false;
+  const users = JSON.parse(localStorage.getItem('farmUsers') || '{}');
+  if (users[u]) return false;
+  users[u] = p;
+  localStorage.setItem('farmUsers', JSON.stringify(users));
+  return true;
+}
+function loginUser(u, p) {
+  const users = JSON.parse(localStorage.getItem('farmUsers') || '{}');
+  return users[u] && users[u] === p;
+}
+
+// ---- RENDER ----
+function renderFarm() {
+  const grid = document.getElementById('farmGrid');
+  grid.innerHTML = '';
+  for (let i = 0; i < 36; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    cell.dataset.index = i;
+    const data = state.farm[i];
+    if (data.type === 'plant') {
+      const plant = PLANTS[data.plantType];
+      const elapsed = (Date.now() - data.plantedAt) / 1000;
+      const progress = Math.min(1, elapsed / plant.growTime);
+      cell.innerHTML = `<span>${progress >= 1 ? plant.emoji : '🌱'}</span>`;
+      if (progress < 1) cell.innerHTML += `<span class="growth">${Math.floor(progress*100)}%</span>`;
+      else cell.innerHTML += `<span class="growth">✅</span>`;
+    } else if (data.type === 'house') { cell.innerHTML = '<span class="deco">🏡</span>'; }
+    else if (data.type === 'deco') { cell.innerHTML = `<span class="deco">${data.emoji || '🌷'}</span>`; }
+    else { cell.innerHTML = '<span style="opacity:0.15;font-size:0.8rem;">·</span>'; }
+    cell.addEventListener('click', () => onCellClick(i));
+    grid.appendChild(cell);
+  }
+}
+
+function updateUI() {
+  document.getElementById('goldDisplay').textContent = state.gold;
+  document.getElementById('levelDisplay').textContent = state.level;
+  document.getElementById('usernameDisplay').textContent = state.username;
+  updatePetUI();
+  updateTaskUI();
+}
+
+function updatePetUI() {
+  document.querySelectorAll('.pet-card').forEach((card, idx) => {
+    const pet = state.pets[idx];
+    if (!pet) return;
+    const mood = pet.happiness > 70 ? '😊' : (pet.happiness > 40 ? '😐' : '😢');
+    card.querySelector('.mood').textContent = mood + ' ' + (pet.happiness > 70 ? 'Vui vẻ' : (pet.happiness > 40 ? 'Bth' : 'Buồn'));
+  });
+}
+
+function updateTaskUI() {
+  const t = state.task;
+  document.getElementById('taskDesc').textContent = t.type === 'plant' ? 'Trồng ' + t.target + ' cây' : 'Thu hoạch ' + t.target + ' cây';
+  document.getElementById('taskProgress').textContent = t.progress + '/' + t.target;
+  document.getElementById('taskReward').textContent = '+' + t.reward + '🪙';
+  if (t.done) document.getElementById('taskProgress').textContent = '✅ HOÀN THÀNH!';
+}
+
+// ---- CELL CLICK ----
+function onCellClick(index) {
+  const data = state.farm[index];
+  if (data.type === 'plant') {
+    const plant = PLANTS[data.plantType];
+    const elapsed = (Date.now() - data.plantedAt) / 1000;
+    if (elapsed >= plant.growTime) {
+      state.gold += plant.sell;
+      state.exp += plant.exp;
+      state.farm[index] = { type: 'empty' };
+      // task progress
+      if (state.task.type === 'harvest' && !state.task.done) {
+        state.task.progress++;
+        if (state.task.progress >= state.task.target) { state.task.done = true; state.gold += state.task.reward; notif('🎉 Hoàn thành nhiệm vụ! +' + state.task.reward + ' vàng'); }
+      }
+      renderFarm(); updateUI(); checkLevelUp(); saveGame();
+      notif('🧺 Thu hoạch +' + plant.sell + '🪙');
+      return;
+    } else { notif('🌱 Còn ' + Math.ceil(plant.growTime - elapsed) + 's nữa'); }
+  }
+}
+
+// ---- TRỒNG CÂY ----
+function plantSeed(type) {
+  const idx = state.farm.findIndex(c => c.type === 'empty');
+  if (idx === -1) { notif('❌ Hết ô trống!'); return; }
+  const plant = PLANTS[type];
+  if (!plant) return;
+  if (state.gold < plant.price) { notif('❌ Cần ' + plant.price + ' vàng'); return; }
+  state.gold -= plant.price;
+  state.farm[idx] = { type: 'plant', plantType: type, plantedAt: Date.now() };
+  // task
+  if (state.task.type === 'plant' && !state.task.done) {
+    state.task.progress++;
+    if (state.task.progress >= state.task.target) { state.task.done = true; state.gold += state.task.reward; notif('🎉 Hoàn thành nhiệm vụ! +' + state.task.reward + ' vàng'); }
+  }
+  renderFarm(); updateUI(); checkLevelUp(); saveGame();
+  notif('🌱 Đã trồng ' + plant.name);
+}
+
+// ---- THU HOẠCH HÀNG LOẠT ----
+function harvestAll() {
+  let count = 0;
+  for (let i = 0; i < state.farm.length; i++) {
+    const data = state.farm[i];
+    if (data.type === 'plant') {
+      const plant = PLANTS[data.plantType];
+      if ((Date.now() - data.plantedAt) / 1000 >= plant.growTime) {
+        state.gold += plant.sell; state.exp += plant.exp;
+        state.farm[i] = { type: 'empty' }; count++;
+      }
+    }
+  }
+  if (count === 0) { notif('🌾 Chưa có cây nào sẵn sàng'); return; }
+  if (state.task.type === 'harvest' && !state.task.done) {
+    state.task.progress += count;
+    if (state.task.progress >= state.task.target) { state.task.done = true; state.gold += state.task.reward; notif('🎉 Hoàn thành nhiệm vụ! +' + state.task.reward + ' vàng'); }
+  }
+  renderFarm(); updateUI(); checkLevelUp(); saveGame();
+  notif('🧺 Thu hoạch ' + count + ' cây');
+}
+
+// ---- LEVEL UP ----
+function checkLevelUp() {
+  const need = state.level * 18;
+  while (state.exp >= need) { state.exp -= need; state.level++; notif('🎉 LÊN CẤP ' + state.level + '!'); }
+}
+
+// ---- PET ----
+function feedPet(idx) {
+  const pet = state.pets[idx];
+  if (!pet) return;
+  if (state.gold < 5) { notif('❌ Cần 5 vàng mua thức ăn'); return; }
+  state.gold -= 5;
+  pet.hunger = Math.min(100, pet.hunger + 25);
+  pet.happiness = Math.min(100, pet.happiness + 15);
+  updateUI(); saveGame();
+  notif('🍽️ Đã cho ' + pet.name + ' ăn!');
+}
+
+// ---- RAID ----
+let raidInterval = null;
+function startRaidTimer() {
+  if (raidInterval) clearInterval(raidInterval);
+  raidInterval = setInterval(() => {
+    if (state.isRaid) return;
+    if (Math.random() < 0.25) {
+      state.isRaid = true;
+      document.getElementById('raidBanner').style.display = 'flex';
+    }
+  }, 18000);
+}
+function defendRaid() {
+  if (!state.isRaid) return;
+  state.isRaid = false;
+  document.getElementById('raidBanner').style.display = 'none';
+  const reward = Math.floor(Math.random() * 15) + 8;
+  state.gold += reward;
+  notif('🛡️ Đánh đuổi thành công! +' + reward + ' vàng');
+  updateUI(); saveGame();
+}
+function ignoreRaid() {
+  if (!state.isRaid) return;
+  state.isRaid = false;
+  document.getElementById('raidBanner').style.display = 'none';
+  const lost = Math.floor(Math.random() * 15) + 8;
+  state.gold = Math.max(0, state.gold - lost);
+  notif('💔 Mất ' + lost + ' vàng do băng cướp');
+  updateUI(); saveGame();
+}
+setInterval(() => { if (state.isRaid) ignoreRaid(); }, 25000);
+
+// ---- TASK ----
+function resetTask() {
+  const types = ['plant', 'harvest'];
+  const type = types[Math.floor(Math.random() * types.length)];
+  const target = Math.floor(Math.random() * 5) + 4;
+  const reward = target * 4 + 4;
+  state.task = { type, target, progress: 0, reward, done: false };
+  updateTaskUI();
+}
+
+// ---- SHOW GAME ----
+function showGame() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('gameScreen').style.display = 'block';
+  renderFarm(); updateUI(); startRaidTimer(); resetTask();
+  setInterval(() => {
+    state.pets.forEach(p => { p.happiness = Math.min(100, p.happiness + (p.hunger > 60 ? 1 : -1)); if (p.happiness < 15) p.happiness = 15; });
+    updatePetUI();
+    if (Math.random() < 0.12) { state.gold += Math.floor(Math.random() * 3) + 1; updateUI(); }
+  }, 7000);
+}
+
+// ---- INIT ----
+function initGame() {
+  if (state.farm.length === 0) state.farm = createEmptyFarm();
+  // đặt vài deco ban đầu
+  if (state.farm.every(c => c.type === 'empty')) {
+    state.farm[0] = { type: 'deco', emoji: '🌳' };
+    state.farm[35] = { type: 'deco', emoji: '🌸' };
+  }
+  renderFarm(); updateUI(); updatePetUI();
+
+  document.getElementById('plantBtn').addEventListener('click', () => {
+    const type = prompt('Chọn cây: potato, carrot, wheat, watermelon, grape', 'potato');
+    if (type && PLANTS[type]) plantSeed(type);
+  });
+  document.getElementById('harvestBtn').addEventListener('click', harvestAll);
+  document.getElementById('shopBtn').addEventListener('click', () => {
+    document.getElementById('shopPanel').style.display = document.getElementById('shopPanel').style.display === 'none' ? 'flex' : 'none';
+  });
+  document.getElementById('taskBtn').addEventListener('click', () => {
+    if (state.task.done) { notif('🎉 Nhiệm vụ đã hoàn thành!'); return; }
+    notif('📋 ' + (state.task.type === 'plant' ? 'Trồng' : 'Thu hoạch') + ' ' + state.task.target + ' cây');
+  });
+  document.getElementById('defendBtn').addEventListener('click', defendRaid);
+  document.getElementById('saveBtn').addEventListener('click', () => { saveGame(); notif('💾 Đã lưu!'); });
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    if (confirm('Đăng xuất?')) { state.username = ''; document.getElementById('loginScreen').style.display = 'flex'; document.getElementById('gameScreen').style.display = 'none'; clearInterval(raidInterval); }
+  });
+
+  // Shop buttons
+  document.querySelectorAll('#shopPanel [data-seed]').forEach(btn => {
+    btn.addEventListener('click', () => plantSeed(btn.dataset.seed));
+  });
+  document.getElementById('buyPetFoodBtn').addEventListener('click', () => {
+    if (state.gold < 5) { notif('❌ Cần 5 vàng'); return; }
+    state.gold -= 5;
+    state.pets.forEach(p => { p.hunger = Math.min(100, p.hunger + 10); p.happiness = Math.min(100, p.happiness + 5); });
+    updateUI(); updatePetUI(); saveGame();
+    notif('🍖 Đã mua thức ăn cho tất cả pet!');
+  });
+
+  document.querySelectorAll('.feedPetBtn').forEach((btn, idx) => {
+    btn.addEventListener('click', (e) => { e.stopPropagation(); feedPet(idx); });
+  });
+
+  // Check remote config
+  fetch(CONFIG.remoteConfigUrl).then(r => r.json()).then(data => {
+    if (data.version && data.version !== CONFIG.version) {
+      document.getElementById('versionInfo').textContent = '📦 v' + data.version + ' (có cập nhật)';
+    }
+  }).catch(() => {});
+}
+
+// ---- LOGIN EVENTS ----
+document.getElementById('loginBtn').addEventListener('click', () => {
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value.trim();
+  if (!u || !p) { notif('Vui lòng nhập đầy đủ'); return; }
+  if (loginUser(u, p)) {
+    document.getElementById('loginError').style.display = 'none';
+    if (!loadGame(u)) {
+      state.username = u; state.gold = 120; state.level = 1; state.exp = 0;
+      state.farm = createEmptyFarm(); state.pets = [
+        { name: 'Gà vàng', emoji: '🐥', hunger: 80, happiness: 80, age: 0 },
+        { name: 'Chó cỏ', emoji: '🐕', hunger: 70, happiness: 85, age: 0 },
+        { name: 'Mèo lười', emoji: '🐱', hunger: 75, happiness: 75, age: 0 }
+      ];
+      state.houseCount = 0; state.decoCount = 0;
+      saveGame();
+    }
+    showGame(); initGame();
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+    document.getElementById('loginError').textContent = '❌ Sai tên hoặc mật khẩu';
+  }
+});
+
+document.getElementById('registerBtn').addEventListener('click', () => {
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value.trim();
+  if (!u || !p) { notif('Vui lòng nhập đầy đủ'); return; }
+  if (registerUser(u, p)) { notif('✅ Đăng ký thành công! Hãy đăng nhập.'); document.getElementById('loginError').style.display = 'none'; }
+  else { notif('❌ Tên đã tồn tại!'); }
+});
+
+// Auto login
+(function() {
+  const users = JSON.parse(localStorage.getItem('farmUsers') || '{}');
+  const keys = Object.keys(users);
+  if (keys.length > 0) {
+    document.getElementById('loginUser').value = keys[0];
+    document.getElementById('loginPass').value = users[keys[0]];
+    document.getElementById('loginBtn').click();
+  } else {
+    document.getElementById('loginScreen').style.display = 'flex';
+  }
+})();
+</script>
+</body>
+  </html>
