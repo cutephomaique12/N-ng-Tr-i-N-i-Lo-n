@@ -3,94 +3,84 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>🌍 Thế Giới 2D: Kỷ Nguyên Mới</title>
+  <title>Thế Giới 2D - Bản Nâng Cấp Toàn Diện</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { background: #111; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; touch-action: none; color: white; }
-    #gameContainer { position: relative; width: 100%; max-width: 800px; height: 100%; background: #000; overflow: hidden; box-shadow: 0 0 20px rgba(0,0,0,1); }
-    canvas { display: block; width: 100%; height: 100%; touch-action: none; }
-
-    /* UI Elements */
-    .ui-layer { position: absolute; pointer-events: none; top: 0; left: 0; width: 100%; height: 100%; }
-    .top-bar { display: flex; justify-content: space-between; padding: 10px; pointer-events: auto; }
-    .zone-info, .money-info { background: rgba(0,0,0,0.6); padding: 5px 15px; border-radius: 20px; backdrop-filter: blur(5px); font-weight: bold; border: 1px solid rgba(255,255,255,0.2); }
-    .money-info { color: #FFD700; }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; user-select: none; }
+    body { background: #111; overflow: hidden; touch-action: none; color: white; }
     
-    .menu-buttons { display: flex; gap: 5px; flex-wrap: wrap; max-width: 50%; justify-content: flex-end; }
-    .btn { background: rgba(0,0,0,0.6); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 8px 12px; border-radius: 15px; font-weight: bold; cursor: pointer; backdrop-filter: blur(5px); transition: 0.2s; pointer-events: auto; font-size: 12px;}
-    .btn:active { transform: scale(0.9); background: rgba(255,255,255,0.3); }
+    #gameContainer { position: relative; width: 100vw; height: 100vh; background: #81ecec; overflow: hidden; }
+    canvas { display: block; width: 100%; height: 100%; }
 
-    /* Controls */
-    #joystick { position: absolute; bottom: 30px; left: 30px; width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.3); pointer-events: auto; display: flex; justify-content: center; align-items: center; }
-    #joystick-knob { width: 50px; height: 50px; border-radius: 50%; background: rgba(255,255,255,0.8); box-shadow: 0 0 15px rgba(0,0,0,0.5); pointer-events: none; }
-    
-    #actionBtn { position: absolute; bottom: 40px; right: 30px; width: 80px; height: 80px; border-radius: 50%; background: rgba(255, 107, 107, 0.8); border: 3px solid #ff4757; color: white; font-weight: bold; font-size: 14px; pointer-events: auto; display: flex; justify-content: center; align-items: center; box-shadow: 0 0 20px rgba(255, 71, 87, 0.5); opacity: 0.5; transition: 0.2s; text-align: center; line-height: 1.2; }
-    #actionBtn.active { opacity: 1; transform: scale(1.1); animation: pulse 1s infinite; }
-    
-    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(255, 71, 87, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0); } }
+    /* UI - Glassmorphism */
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 15px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+      pointer-events: auto;
+    }
 
-    /* Modals */
-    .modal { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(20,20,30,0.95); border: 2px solid #555; padding: 20px; border-radius: 15px; width: 80%; max-width: 350px; display: none; pointer-events: auto; backdrop-filter: blur(10px); z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
-    .modal h2 { text-align: center; margin-bottom: 15px; color: #FFD700; border-bottom: 1px solid #444; padding-bottom: 10px; }
-    .close-btn { position: absolute; top: 10px; right: 15px; color: red; font-weight: bold; cursor: pointer; font-size: 18px; }
-    .shop-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #333; }
-    .shop-item button { padding: 5px 10px; background: #2ed573; border: none; border-radius: 5px; color: white; font-weight: bold; }
-    .event-banner { background: linear-gradient(45deg, #ff9a9e, #fecfef); padding: 10px; border-radius: 10px; color: #333; text-align: center; margin-bottom: 10px; font-weight: bold; }
+    /* Top Bar */
+    .top-bar { position: absolute; top: 15px; left: 15px; right: 15px; display: flex; justify-content: space-between; pointer-events: none; }
+    .player-info { padding: 8px 15px; color: #2d3436; font-weight: bold; }
+    .menu-btns { display: flex; gap: 10px; }
+    .btn { padding: 8px 15px; cursor: pointer; color: #2d3436; font-weight: bold; transition: 0.2s; }
+    .btn:active { transform: scale(0.9); }
+
+    /* Chat System */
+    #chat-container { position: absolute; top: 70px; left: 15px; width: 280px; height: 200px; display: flex; flex-direction: column; pointer-events: auto; z-index: 10; }
+    #chat-history { flex: 1; overflow-y: auto; padding: 10px; font-size: 13px; color: #333; text-shadow: 0 0 2px rgba(255,255,255,0.8); display: flex; flex-direction: column; gap: 5px; -webkit-overflow-scrolling: touch; }
+    .chat-msg { background: rgba(255,255,255,0.6); padding: 5px 10px; border-radius: 10px; width: fit-content; max-width: 100%; word-wrap: break-word; }
+    .chat-msg span { font-weight: bold; color: #e17055; }
+    #chat-input-area { display: flex; padding: 5px; background: rgba(255,255,255,0.3); border-radius: 0 0 15px 15px; }
+    #chat-input { flex: 1; border: none; padding: 8px; border-radius: 10px; outline: none; font-size: 14px; }
+    #btn-send { background: #00b894; color: white; border: none; padding: 0 15px; margin-left: 5px; border-radius: 10px; font-weight: bold; cursor: pointer; }
+
+    /* Joystick */
+    #joystick { position: absolute; bottom: 40px; left: 40px; width: 130px; height: 130px; border-radius: 50%; pointer-events: auto; z-index: 10; display: flex; justify-content: center; align-items: center; }
+    #joystick-knob { width: 55px; height: 55px; border-radius: 50%; background: rgba(255,255,255,0.9); box-shadow: 0 4px 15px rgba(0,0,0,0.3); pointer-events: none; }
+
+    /* Wardrobe Modal */
+    #wardrobe { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 300px; padding: 20px; color: #2d3436; display: none; z-index: 100; }
+    .close-btn { position: absolute; top: 10px; right: 15px; font-weight: bold; font-size: 18px; color: #d63031; cursor: pointer; }
+    .color-picker { margin: 15px 0; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
+    input[type="color"] { border: none; width: 40px; height: 40px; border-radius: 5px; cursor: pointer; }
+
   </style>
 </head>
 <body>
 
 <div id="gameContainer">
   <canvas id="gameCanvas"></canvas>
-  
-  <div class="ui-layer">
-    <div class="top-bar">
-      <div>
-        <div class="zone-info" id="ui-zone">🏠 Sảnh Chính</div>
-        <div class="money-info" style="margin-top:5px;">💰 <span id="ui-money">1000</span> | 🎒 <span id="ui-inv">0</span></div>
-      </div>
-      <div class="menu-buttons">
-        <div class="btn" onclick="openModal('shopModal')">🛒 Cửa Hàng</div>
-        <div class="btn" onclick="openModal('petModal')">🐾 Pet</div>
-        <div class="btn" onclick="openModal('socialModal')">👥 Xã Hội</div>
-        <div class="btn" onclick="openModal('eventModal')" style="border-color:#ff9a9e; color:#ff9a9e;">🌸 Sự Kiện</div>
-      </div>
+
+  <div class="top-bar">
+    <div class="glass-panel player-info">Khu vực: Công Viên Trung Tâm</div>
+    <div class="menu-btns">
+      <div class="glass-panel btn" onclick="openWardrobe()">👕 Thay đồ</div>
     </div>
-    <div id="joystick"><div id="joystick-knob"></div></div>
-    <div id="actionBtn">Đến gần<br>vật thể</div>
   </div>
 
-  <!-- Modals -->
-  <div id="shopModal" class="modal">
-    <span class="close-btn" onclick="closeModal('shopModal')">✖</span>
-    <h2>🛒 Cửa Hàng Xe</h2>
-    <div class="shop-item"><span>🛹 Ván trượt (+20 Tốc)</span> <button onclick="buyItem('xe', 'Ván trượt', 500, 20)">500💰</button></div>
-    <div class="shop-item"><span>🚲 Xe đạp (+50 Tốc)</span> <button onclick="buyItem('xe', 'Xe đạp', 1500, 50)">1500💰</button></div>
-    <div class="shop-item"><span>🛸 Đĩa bay (+100 Tốc)</span> <button onclick="buyItem('xe', 'Đĩa bay', 5000, 100)">5000💰</button></div>
+  <div id="chat-container" class="glass-panel">
+    <div id="chat-history"></div>
+    <div id="chat-input-area">
+      <input type="text" id="chat-input" placeholder="Nhập tin nhắn..." autocomplete="off">
+      <button id="btn-send">Gửi</button>
+    </div>
   </div>
 
-  <div id="petModal" class="modal">
-    <span class="close-btn" onclick="closeModal('petModal')">✖</span>
-    <h2>🐾 Cửa Hàng Thú Cưng</h2>
-    <div class="shop-item"><span>🐶 Cún con</span> <button onclick="buyItem('pet', '🐶', 1000, 0)">1000💰</button></div>
-    <div class="shop-item"><span>🐱 Mèo mun</span> <button onclick="buyItem('pet', '🐱', 1000, 0)">1000💰</button></div>
-    <div class="shop-item"><span>🐉 Rồng lửa</span> <button onclick="buyItem('pet', '🐉', 10000, 0)">10000💰</button></div>
+  <div id="joystick" class="glass-panel">
+    <div id="joystick-knob"></div>
   </div>
 
-  <div id="socialModal" class="modal">
-    <span class="close-btn" onclick="closeModal('socialModal')">✖</span>
-    <h2>👥 Giao Lưu & Tri Kỷ</h2>
-    <p style="font-size:12px; color:#aaa; text-align:center; margin-bottom:10px;">(Trạng thái: Đang Online 🟢 15 người)</p>
-    <div class="shop-item"><span>💞 Tri kỷ: <b style="color:#ff4757">Chưa có</b></span> <button onclick="alert('Hãy tặng 10 🌸 cho người chơi khác để lập Tri Kỷ!')">Tạo</button></div>
-    <div style="font-size:12px; margin-top:10px; color:#2ed573;">✨ Quyền lợi Tri Kỷ: +15% Tốc độ di chuyển khi ở chung map, icon tên đặc biệt.</div>
-  </div>
-
-  <div id="eventModal" class="modal">
-    <span class="close-btn" onclick="closeModal('eventModal')">✖</span>
-    <h2>🌸 Lễ Hội Mùa Xuân</h2>
-    <div class="event-banner">Thu thập 5 Hoa Đào 🌸 rơi rải rác trên Map để nhận Thú cưỡi Kỳ Lân!</div>
-    <div style="text-align:center; font-size:20px; margin: 10px 0;">Tiến độ: <span id="event-progress">0</span>/5 🌸</div>
-    <button style="width:100%; padding:10px; background:#ff4757; color:white; border:none; border-radius:10px; font-weight:bold;" onclick="claimEvent()">Nhận Thưởng</button>
+  <div id="wardrobe" class="glass-panel">
+    <span class="close-btn" onclick="closeWardrobe()">✖</span>
+    <h3 style="text-align: center; margin-bottom: 10px;">Phòng Thay Đồ</h3>
+    <div class="color-picker">Màu Áo: <input type="color" id="color-shirt" value="#0984e3"></div>
+    <div class="color-picker">Màu Quần: <input type="color" id="color-pants" value="#2d3436"></div>
+    <div class="color-picker">Màu Da: <input type="color" id="color-skin" value="#ffeaa7"></div>
+    <button class="btn glass-panel" style="width: 100%; margin-top: 10px; background:#00b894; color:white; border:none;" onclick="closeWardrobe()">Xong</button>
   </div>
 </div>
 
@@ -102,317 +92,344 @@ let W, H;
 function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
 window.addEventListener('resize', resize); resize();
 
-// Data Người chơi
-const player = {
-  x: 1000, y: 1000, radius: 18, baseSpeed: 200, speedBoost: 0,
-  color: '#FF6B6B', money: 1000, inventory: 0, eventItem: 0,
-  vehicle: null, pet: null, petX: 1000, petY: 1000,
-  triky: false
-};
-
+// CAMERA & THẾ GIỚI
+const worldSize = 3000;
 const camera = { x: 0, y: 0 };
-let currentZone = 'sanh';
-let particles = [];
-let onlinePlayers = []; // Mô phỏng người chơi khác
 
-// Quản lý Map Siêu Rộng (2000x2000)
-const zones = {
-  'sanh': {
-    name: '🏠 Sảnh Chính', bg: '#87CEEB', width: 2000, height: 2000,
-    portals: [
-      { x: 1800, y: 1000, target: 'nongtrai', label: 'Dịch chuyển: Nông Trại 🌾' },
-      { x: 200, y: 1000, target: 'rung', label: 'Dịch chuyển: Rừng Sâu 🌲' }
-    ],
-    objects: [
-      { type: 'shop', x: 1000, y: 800, emoji: '🏪', size: 80, label: 'Khu Mua Sắm' },
-      { type: 'event', x: 1200, y: 1200, emoji: '🌸', size: 30, action: 'Hái hoa' },
-      { type: 'event', x: 800, y: 900, emoji: '🌸', size: 30, action: 'Hái hoa' }
-    ]
-  },
-  'nongtrai': {
-    name: '🌾 Nông Trại & Hồ Câu', bg: '#90EE90', width: 2000, height: 2000,
-    portals: [{ x: 200, y: 1000, target: 'sanh', label: 'Về Sảnh 🏠' }],
-    objects: [
-      { type: 'fish', x: 1500, y: 1500, emoji: '💧', size: 150, label: 'Hồ Câu Cá', action: 'Câu cá' },
-      { type: 'fish', x: 1600, y: 1400, emoji: '🐟', size: 30, action: 'Câu cá' },
-      { type: 'bug', x: 800, y: 500, emoji: '🦋', size: 30, action: 'Bắt bọ' },
-      { type: 'event', x: 1000, y: 1800, emoji: '🌸', size: 30, action: 'Hái hoa' }
-    ]
-  },
-  'rung': {
-    name: '🌲 Rừng Khai Thác', bg: '#2E8B57', width: 2000, height: 2000,
-    portals: [{ x: 1800, y: 1000, target: 'sanh', label: 'Về Sảnh 🏠' }],
-    objects: [
-      { type: 'rock', x: 500, y: 500, emoji: '🪨', size: 50, action: 'Đập đá' },
-      { type: 'rock', x: 700, y: 1500, emoji: '🪨', size: 60, action: 'Đập đá' },
-      { type: 'rock', x: 800, y: 800, emoji: '💎', size: 40, action: 'Đào ngọc' },
-      { type: 'event', x: 300, y: 300, emoji: '🌸', size: 30, action: 'Hái hoa' },
-      { type: 'event', x: 1500, y: 300, emoji: '🌸', size: 30, action: 'Hái hoa' }
-    ]
+// ================= TẠO CẢNH QUAN (MAP GENERATION) =================
+const environments = [];
+function initMap() {
+  // Tạo cỏ
+  for(let i = 0; i < 400; i++) {
+    environments.push({
+      type: 'grass',
+      x: Math.random() * worldSize, y: Math.random() * worldSize,
+      size: Math.random() * 5 + 3,
+      sortY: -9999 // Cỏ luôn ở dưới cùng
+    });
   }
-};
+  // Tạo cây cối
+  const treeColors = ['#00b894', '#55efc4', '#00a8ff'];
+  for(let i = 0; i < 150; i++) {
+    const y = Math.random() * worldSize;
+    environments.push({
+      type: 'tree',
+      x: Math.random() * worldSize, y: y,
+      size: Math.random() * 30 + 40,
+      color: treeColors[Math.floor(Math.random() * treeColors.length)],
+      sortY: y // Tree đè lên nhân vật nếu nhân vật đứng sau (y nhỏ hơn)
+    });
+  }
+}
+initMap();
+
+// ================= THỰC THỂ (ENTITIES) =================
+class Humanoid {
+  constructor(name, x, y, isPlayer = false) {
+    this.name = name;
+    this.x = x; this.y = y;
+    this.isPlayer = isPlayer;
+    this.speed = isPlayer ? 250 : 100;
+    
+    // Tùy chỉnh ngoại hình
+    this.colorSkin = '#ffeaa7';
+    this.colorShirt = isPlayer ? '#0984e3' : ['#d63031', '#6c5ce7', '#e84393', '#fdcb6e'][Math.floor(Math.random()*4)];
+    this.colorPants = '#2d3436';
+    
+    // Animation
+    this.dirX = 0; this.dirY = 1; // Hướng nhìn (mặc định nhìn xuống)
+    this.isMoving = false;
+    this.walkCycle = 0;
+    
+    // Chat
+    this.chatMsg = "";
+    this.chatTimer = 0;
+    
+    // Bot AI
+    if(!isPlayer) {
+      this.targetX = x; this.targetY = y;
+      this.waitTimer = 0;
+    }
+  }
+
+  setChat(msg) {
+    this.chatMsg = msg;
+    this.chatTimer = 4; // Hiện 4 giây
+  }
+
+  update(dt) {
+    if(this.chatTimer > 0) this.chatTimer -= dt;
+
+    if(this.isPlayer) {
+      // Logic di chuyển của người chơi (dựa vào Joystick)
+      this.isMoving = (joyX !== 0 || joyY !== 0);
+      if(this.isMoving) {
+        this.dirX = joyX; this.dirY = joyY;
+        this.x += joyX * this.speed * dt;
+        this.y += joyY * this.speed * dt;
+        this.walkCycle += dt * 15;
+      } else {
+        this.walkCycle = 0;
+      }
+    } else {
+      // Logic của Bot (Đi loanh quanh & Chat ngẫu nhiên)
+      if(this.waitTimer > 0) {
+        this.waitTimer -= dt;
+        this.isMoving = false;
+        this.walkCycle = 0;
+        
+        // Random chat
+        if(Math.random() < 0.005 && this.chatTimer <= 0) {
+          const phrases = ["Trời hôm nay đẹp nhỉ?", "Chào đằng ấy!", "Chỗ này đông vui quá.", "Ai đi dạo với mình không?", "Lag quá ta..."];
+          this.setChat(phrases[Math.floor(Math.random() * phrases.length)]);
+          addChatToHistory(this.name, this.chatMsg);
+        }
+      } else {
+        const dx = this.targetX - this.x;
+        const dy = this.targetY - this.y;
+        const dist = Math.hypot(dx, dy);
+        if(dist < 5) {
+          this.targetX = this.x + (Math.random() - 0.5) * 400;
+          this.targetY = this.y + (Math.random() - 0.5) * 400;
+          this.targetX = Math.max(100, Math.min(worldSize-100, this.targetX));
+          this.targetY = Math.max(100, Math.min(worldSize-100, this.targetY));
+          this.waitTimer = Math.random() * 3 + 2;
+        } else {
+          this.isMoving = true;
+          this.dirX = dx/dist; this.dirY = dy/dist;
+          this.x += this.dirX * this.speed * dt;
+          this.y += this.dirY * this.speed * dt;
+          this.walkCycle += dt * 10;
+        }
+      }
+    }
+
+    // Giới hạn bản đồ
+    this.x = Math.max(20, Math.min(worldSize - 20, this.x));
+    this.y = Math.max(20, Math.min(worldSize - 20, this.y));
+  }
+
+  // Thuật toán vẽ nhân vật có tay chân
+  draw(ctx) {
+    ctx.save();
+    ctx.translate(this.x, this.y);
+    
+    // Tính toán độ vung tay chân dựa trên bước đi
+    const swing = this.isMoving ? Math.sin(this.walkCycle) * 10 : 0;
+    
+    // Tính góc xoay dựa trên hướng di chuyển
+    const angle = Math.atan2(this.dirY, this.dirX) - Math.PI/2;
+    
+    // Vẽ Bóng
+    ctx.fillStyle = 'rgba(0,0,0,0.2)';
+    ctx.beginPath(); ctx.ellipse(0, 15, 18, 8, 0, 0, Math.PI*2); ctx.fill();
+
+    ctx.rotate(angle);
+
+    // --- Vẽ Chân ---
+    ctx.fillStyle = this.colorPants;
+    // Chân trái
+    ctx.beginPath(); ctx.roundRect(-10, 5 + swing, 8, 15, 4); ctx.fill();
+    // Chân phải
+    ctx.beginPath(); ctx.roundRect(2, 5 - swing, 8, 15, 4); ctx.fill();
+
+    // --- Vẽ Tay ---
+    ctx.fillStyle = this.colorSkin;
+    // Tay trái (vung ngược chiều chân)
+    ctx.beginPath(); ctx.roundRect(-16, -5 - swing, 7, 14, 3); ctx.fill();
+    // Tay phải
+    ctx.beginPath(); ctx.roundRect(9, -5 + swing, 7, 14, 3); ctx.fill();
+
+    // --- Vẽ Thân ---
+    ctx.fillStyle = this.colorShirt;
+    ctx.beginPath(); ctx.roundRect(-12, -10, 24, 20, 6); ctx.fill();
+
+    // --- Vẽ Đầu ---
+    ctx.fillStyle = this.colorSkin;
+    ctx.beginPath(); ctx.arc(0, -10, 12, 0, Math.PI*2); ctx.fill();
+    // Tóc đơn giản
+    ctx.fillStyle = '#2d3436';
+    ctx.beginPath(); ctx.arc(0, -14, 11, Math.PI, 0); ctx.fill();
+    
+    ctx.restore();
+
+    // --- Vẽ Tên & Bong Bóng Chat (không bị xoay) ---
+    ctx.textAlign = 'center';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.fillStyle = this.isPlayer ? '#fdcb6e' : 'white';
+    ctx.shadowColor = 'black'; ctx.shadowBlur = 4;
+    ctx.fillText(this.name, this.x, this.y - 35);
+    ctx.shadowBlur = 0;
+
+    if(this.chatTimer > 0) {
+      ctx.font = 'bold 13px sans-serif';
+      const textW = ctx.measureText(this.chatMsg).width;
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      ctx.beginPath(); ctx.roundRect(this.x - textW/2 - 8, this.y - 65, textW + 16, 22, 10); ctx.fill();
+      
+      // Mũi nhọn bong bóng chat
+      ctx.beginPath(); ctx.moveTo(this.x - 5, this.y - 43); ctx.lineTo(this.x + 5, this.y - 43); ctx.lineTo(this.x, this.y - 35); ctx.fill();
+      
+      ctx.fillStyle = '#2d3436';
+      ctx.fillText(this.chatMsg, this.x, this.y - 49);
+    }
+  }
+}
+
+const player = new Humanoid("Bạn (Chủ Phòng)", worldSize/2, worldSize/2, true);
+const bots = [
+  new Humanoid("Kiku", worldSize/2 + 100, worldSize/2 + 50),
+  new Humanoid("Kenji", worldSize/2 - 150, worldSize/2 - 50),
+  new Humanoid("Thảo Ngọt Ngào", worldSize/2 + 50, worldSize/2 - 200),
+  new Humanoid("BoyLanhLung", worldSize/2 - 200, worldSize/2 + 150),
+  new Humanoid("NPC Bán Hàng", worldSize/2, worldSize/2 - 100)
+];
+
+// ================= HỆ THỐNG CHAT TỔNG =================
+const chatInput = document.getElementById('chat-input');
+const chatHistory = document.getElementById('chat-history');
+const btnSend = document.getElementById('btn-send');
+
+function addChatToHistory(name, msg) {
+  const div = document.createElement('div');
+  div.className = 'chat-msg';
+  div.innerHTML = `<span>${name}:</span> ${msg}`;
+  chatHistory.appendChild(div);
+  chatHistory.scrollTop = chatHistory.scrollHeight;
+}
+
+function sendPlayerChat() {
+  const msg = chatInput.value.trim();
+  if(msg !== "") {
+    player.setChat(msg);
+    addChatToHistory(player.name, msg);
+    chatInput.value = "";
+  }
+  // Giấu bàn phím
+  chatInput.blur();
+}
+btnSend.addEventListener('click', sendPlayerChat);
+chatInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendPlayerChat(); });
+
+// Ngăn chạm vào UI kích hoạt Joystick
+document.getElementById('chat-container').addEventListener('touchstart', e => e.stopPropagation());
+document.getElementById('wardrobe').addEventListener('touchstart', e => e.stopPropagation());
+document.querySelector('.top-bar').addEventListener('touchstart', e => e.stopPropagation());
 
 // ================= JOYSTICK & INPUT =================
 const joystick = document.getElementById('joystick');
 const knob = document.getElementById('joystick-knob');
-const actionBtn = document.getElementById('actionBtn');
-let joyX = 0, joyY = 0, isMoving = false;
-let currentInteractObj = null;
-
-joystick.addEventListener('touchstart', handleJoystick, {passive: false});
-joystick.addEventListener('touchmove', handleJoystick, {passive: false});
-joystick.addEventListener('touchend', () => { isMoving = false; joyX = 0; joyY = 0; knob.style.transform = 'translate(0,0)'; });
+let joyX = 0, joyY = 0;
 
 function handleJoystick(e) {
   e.preventDefault();
-  isMoving = true;
   const rect = joystick.getBoundingClientRect();
   const touch = Array.from(e.touches).find(t => t.clientX >= rect.left && t.clientX <= rect.right && t.clientY >= rect.top && t.clientY <= rect.bottom) || e.touches[0];
+  if(!touch) return;
+  
   let dx = touch.clientX - rect.left - rect.width/2;
   let dy = touch.clientY - rect.top - rect.height/2;
+  const max = 45;
   const dist = Math.hypot(dx, dy);
-  const max = 40;
   if(dist > max) { dx = (dx/dist)*max; dy = (dy/dist)*max; }
+  
   joyX = dx/max; joyY = dy/max;
   knob.style.transform = `translate(${dx}px, ${dy}px)`;
 }
 
-// Nút Hành Động
-actionBtn.addEventListener('touchstart', (e) => {
-  e.preventDefault();
-  if(!currentInteractObj) return;
-  
-  if(currentInteractObj.target) { // Portal
-    currentZone = currentInteractObj.target;
-    player.x = 1000; player.y = 1000; player.petX = 1000; player.petY = 1000;
-    createParticles(player.x, player.y, '#fff', 20);
-    spawnBots(); // Load bot mới
-  } 
-  else { // Mini-games & Sự kiện
-    let reward = 0, msg = "";
-    if(currentInteractObj.action === 'Đập đá' || currentInteractObj.action === 'Đào ngọc') { reward = Math.floor(Math.random()*50)+10; msg = `Nhận ${reward}💰`; createParticles(player.x, player.y, '#888', 10); }
-    if(currentInteractObj.action === 'Câu cá') { reward = Math.floor(Math.random()*100)+50; msg = `Câu được cá! Bán được ${reward}💰`; createParticles(player.x, player.y, '#00a8ff', 15); }
-    if(currentInteractObj.action === 'Bắt bọ') { reward = Math.floor(Math.random()*30)+10; msg = `Bắt được bọ! Nhận ${reward}💰`; createParticles(player.x, player.y, '#9c88ff', 10); }
-    if(currentInteractObj.action === 'Hái hoa') {
-      player.eventItem++;
-      document.getElementById('event-progress').innerText = player.eventItem;
-      msg = `Nhận 1 🌸!`; createParticles(player.x, player.y, '#ff9a9e', 20);
-      // Xóa hoa khỏi map
-      const zone = zones[currentZone];
-      zone.objects = zone.objects.filter(o => o !== currentInteractObj);
-    }
-    
-    if(reward > 0) { player.money += reward; player.inventory++; updateUI(); }
-    showFloatingText(msg, player.x, player.y - 40);
-  }
-});
+joystick.addEventListener('touchstart', handleJoystick, {passive: false});
+joystick.addEventListener('touchmove', handleJoystick, {passive: false});
+joystick.addEventListener('touchend', () => { joyX = 0; joyY = 0; knob.style.transform = 'translate(0,0)'; });
 
-// ================= LOGIC & RENDER =================
-function updateUI() {
-  document.getElementById('ui-zone').innerText = zones[currentZone].name;
-  document.getElementById('ui-money').innerText = player.money;
-  document.getElementById('ui-inv').innerText = player.inventory;
-}
+// ================= WARDROBE (THAY ĐỒ) =================
+function openWardrobe() { document.getElementById('wardrobe').style.display = 'block'; }
+function closeWardrobe() { document.getElementById('wardrobe').style.display = 'none'; }
 
-function spawnBots() {
-  onlinePlayers = [];
-  for(let i=0; i<5; i++) {
-    onlinePlayers.push({
-      x: Math.random() * 1500 + 250, y: Math.random() * 1500 + 250,
-      tx: 0, ty: 0, wait: 0,
-      name: ['Boy9x', 'HoaMocLan', 'Doraemon', 'Nobita', 'GigaChad'][Math.floor(Math.random()*5)]
-    });
-  }
-}
-spawnBots();
+document.getElementById('color-shirt').addEventListener('input', (e) => player.colorShirt = e.target.value);
+document.getElementById('color-pants').addEventListener('input', (e) => player.colorPants = e.target.value);
+document.getElementById('color-skin').addEventListener('input', (e) => player.colorSkin = e.target.value);
 
-function createParticles(x, y, color, count) {
-  for(let i=0; i<count; i++) {
-    particles.push({
-      x: x, y: y,
-      vx: (Math.random()-0.5)*200, vy: (Math.random()-0.5)*200,
-      life: 1.0, color: color
-    });
-  }
-}
-
-function showFloatingText(text, x, y) {
-  particles.push({ x: x, y: y, text: text, life: 1.5, vy: -50, vx: 0, isText: true });
-}
-
+// ================= VÒNG LẶP CHÍNH (GAME LOOP) =================
 let lastTime = performance.now();
+
 function loop(time) {
-  const dt = (time - lastTime) / 1000;
+  const dt = Math.min((time - lastTime) / 1000, 0.05);
   lastTime = time;
-  
-  const zone = zones[currentZone];
-  
-  // Player Movement
-  if(isMoving) {
-    const totalSpeed = player.baseSpeed + player.speedBoost + (player.triky ? 30 : 0);
-    player.x += joyX * totalSpeed * dt;
-    player.y += joyY * totalSpeed * dt;
-    player.x = Math.max(50, Math.min(zone.width - 50, player.x));
-    player.y = Math.max(50, Math.min(zone.height - 50, player.y));
-  }
-  
-  // Pet Movement (Lerp)
-  if(player.pet) {
-    player.petX += (player.x - 30 - player.petX) * 2 * dt;
-    player.petY += (player.y + 20 - player.petY) * 2 * dt;
-  }
 
-  // Camera Follow
-  camera.x = player.x - W/2;
-  camera.y = player.y - H/2;
-  // Giới hạn camera không ra khỏi viền map
-  camera.x = Math.max(0, Math.min(zone.width - W, camera.x));
-  camera.y = Math.max(0, Math.min(zone.height - H, camera.y));
+  // Cập nhật Thực thể
+  player.update(dt);
+  bots.forEach(bot => bot.update(dt));
 
-  // Phát hiện tương tác
-  currentInteractObj = null;
-  let nearestDist = 100;
+  // Camera theo dõi người chơi (Camera mượt)
+  const targetCamX = player.x - W/2;
+  const targetCamY = player.y - H/2;
+  camera.x += (targetCamX - camera.x) * 5 * dt;
+  camera.y += (targetCamY - camera.y) * 5 * dt;
   
-  [...zone.objects, ...zone.portals].forEach(obj => {
-    const dist = Math.hypot(player.x - obj.x, player.y - obj.y);
-    if(dist < nearestDist && obj.type !== 'shop') { // Bỏ qua shop vì nó to
-      nearestDist = dist;
-      currentInteractObj = obj;
-    }
-  });
-
-  if(currentInteractObj) {
-    actionBtn.classList.add('active');
-    actionBtn.innerHTML = currentInteractObj.target ? "Vào Cổng" : currentInteractObj.action;
-  } else {
-    actionBtn.classList.remove('active');
-    actionBtn.innerHTML = "Đến gần<br>vật thể";
-  }
-
-  // Cập nhật Bots
-  onlinePlayers.forEach(bot => {
-    if(bot.wait > 0) bot.wait -= dt;
-    else {
-      if(Math.hypot(bot.tx - bot.x, bot.ty - bot.y) < 10) {
-        bot.tx = bot.x + (Math.random()-0.5)*300;
-        bot.ty = bot.y + (Math.random()-0.5)*300;
-        bot.wait = Math.random()*2;
-      } else {
-        bot.x += (bot.tx > bot.x ? 1 : -1) * 100 * dt;
-        bot.y += (bot.ty > bot.y ? 1 : -1) * 100 * dt;
-      }
-    }
-  });
+  // Giới hạn Camera
+  camera.x = Math.max(0, Math.min(worldSize - W, camera.x));
+  camera.y = Math.max(0, Math.min(worldSize - H, camera.y));
 
   // RENDER
   ctx.clearRect(0, 0, W, H);
   ctx.save();
   ctx.translate(-camera.x, -camera.y);
-  
-  // Vẽ Background lưới để thấy map rộng
-  ctx.fillStyle = zone.bg;
-  ctx.fillRect(0, 0, zone.width, zone.height);
-  ctx.strokeStyle = 'rgba(255,255,255,0.1)';
-  for(let i=0; i<zone.width; i+=100) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,zone.height); ctx.stroke(); }
-  for(let i=0; i<zone.height; i+=100) { ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(zone.width,i); ctx.stroke(); }
 
-  // Vẽ Objects
-  zone.objects.forEach(obj => {
-    ctx.font = `${obj.size}px sans-serif`;
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText(obj.emoji, obj.x, obj.y);
-    if(obj.label) {
-      ctx.font = '14px sans-serif'; ctx.fillStyle = 'white';
-      ctx.fillText(obj.label, obj.x, obj.y - obj.size/2 - 10);
+  // Nền đất
+  ctx.fillStyle = '#b8e994'; // Xanh lá pastel đẹp
+  ctx.fillRect(0, 0, worldSize, worldSize);
+
+  // Tập hợp TẤT CẢ mọi thứ để render theo trục Y (Tạo chiều sâu 2.5D)
+  // Ai có Y thấp (ở trên) sẽ bị người có Y cao (ở dưới) đè lên
+  const renderList = [];
+  
+  // Thêm môi trường vào danh sách
+  environments.forEach(env => {
+    if(env.x > camera.x - 100 && env.x < camera.x + W + 100 && env.y > camera.y - 100 && env.y < camera.y + H + 100) {
+      renderList.push({ type: 'env', data: env, sortY: env.sortY });
     }
   });
 
-  // Vẽ Portals
-  zone.portals.forEach(p => {
-    ctx.beginPath(); ctx.arc(p.x, p.y, 40, 0, Math.PI*2);
-    ctx.fillStyle = 'rgba(255, 215, 0, 0.3)'; ctx.fill();
-    ctx.lineWidth = 3; ctx.strokeStyle = '#FFD700'; ctx.stroke();
-    ctx.font = '30px sans-serif'; ctx.fillText('🌀', p.x, p.y);
-    ctx.font = '14px bold sans-serif'; ctx.fillStyle = 'white';
-    ctx.fillText(p.label, p.x, p.y - 50);
-  });
+  // Thêm nhân vật vào danh sách
+  renderList.push({ type: 'human', data: player, sortY: player.y });
+  bots.forEach(bot => renderList.push({ type: 'human', data: bot, sortY: bot.y }));
 
-  // Vẽ Bots (Mô phỏng Online)
-  onlinePlayers.forEach(bot => {
-    ctx.beginPath(); ctx.arc(bot.x, bot.y, 18, 0, Math.PI*2);
-    ctx.fillStyle = '#a4b0be'; ctx.fill(); ctx.stroke();
-    ctx.font = '12px sans-serif'; ctx.fillStyle = 'white';
-    ctx.fillText(bot.name, bot.x, bot.y - 30);
-  });
+  // Sắp xếp
+  renderList.sort((a, b) => a.sortY - b.sortY);
 
-  // Vẽ Nhân vật & Pet
-  if(player.pet) {
-    ctx.font = '25px sans-serif';
-    ctx.fillText(player.pet, player.petX, player.petY);
-  }
-  
-  if(player.vehicle) {
-    ctx.font = '40px sans-serif';
-    ctx.fillText(player.vehicle === 'Ván trượt'?'🛹':(player.vehicle === 'Xe đạp'?'🚲':'🛸'), player.x, player.y+10);
-  }
-  
-  ctx.beginPath(); ctx.arc(player.x, player.y, player.radius, 0, Math.PI*2);
-  ctx.fillStyle = player.color; ctx.fill();
-  ctx.lineWidth = 2; ctx.strokeStyle = '#fff'; ctx.stroke();
-  ctx.font = '20px sans-serif'; ctx.fillText('😎', player.x, player.y);
-  ctx.font = '14px bold sans-serif'; ctx.fillStyle = '#FFD700';
-  ctx.fillText('Bạn', player.x, player.y - player.radius - 15);
-
-  // Vẽ Particles
-  for(let i=particles.length-1; i>=0; i--) {
-    let p = particles[i];
-    p.x += p.vx * dt; p.y += p.vy * dt; p.life -= dt;
-    ctx.globalAlpha = Math.max(0, p.life);
-    if(p.isText) {
-      ctx.font = 'bold 16px sans-serif'; ctx.fillStyle = '#FFD700';
-      ctx.shadowColor = 'black'; ctx.shadowBlur = 4;
-      ctx.fillText(p.text, p.x, p.y);
-      ctx.shadowBlur = 0;
-    } else {
-      ctx.fillStyle = p.color;
-      ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI*2); ctx.fill();
+  // Vẽ theo thứ tự
+  renderList.forEach(item => {
+    if(item.type === 'env') {
+      const e = item.data;
+      if(e.type === 'grass') {
+        ctx.fillStyle = 'rgba(0,0,0,0.05)';
+        ctx.beginPath(); ctx.arc(e.x, e.y, e.size, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#78e08f';
+        ctx.beginPath(); ctx.moveTo(e.x - e.size/2, e.y); ctx.lineTo(e.x, e.y - e.size); ctx.lineTo(e.x + e.size/2, e.y); ctx.fill();
+      } else if(e.type === 'tree') {
+        // Bóng cây
+        ctx.fillStyle = 'rgba(0,0,0,0.15)';
+        ctx.beginPath(); ctx.ellipse(e.x, e.y, e.size/1.5, e.size/3, 0, 0, Math.PI*2); ctx.fill();
+        // Thân cây
+        ctx.fillStyle = '#b71540';
+        ctx.fillRect(e.x - e.size/10, e.y - e.size, e.size/5, e.size);
+        // Tán cây (Vẽ 3 lớp xếp chồng tạo hiệu ứng 3D)
+        ctx.fillStyle = e.color;
+        ctx.beginPath(); ctx.arc(e.x, e.y - e.size, e.size/1.5, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,0.15)'; // Highlight
+        ctx.beginPath(); ctx.arc(e.x - 5, e.y - e.size - 10, e.size/2, 0, Math.PI*2); ctx.fill();
+      }
+    } else if(item.type === 'human') {
+      item.data.draw(ctx);
     }
-    ctx.globalAlpha = 1;
-    if(p.life <= 0) particles.splice(i, 1);
-  }
+  });
 
   ctx.restore();
   requestAnimationFrame(loop);
 }
 
-// ================= GIAO DIỆN & LOGIC NGOÀI =================
-function openModal(id) { document.getElementById(id).style.display = 'block'; }
-function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
-function buyItem(type, name, cost, boost) {
-  if(player.money >= cost) {
-    player.money -= cost;
-    if(type === 'xe') { player.vehicle = name; player.speedBoost = boost; alert(`Đã trang bị ${name}! Tốc độ +${boost}`); }
-    if(type === 'pet') { player.pet = name; alert(`Nhận nuôi ${name} thành công!`); }
-    updateUI();
-  } else {
-    alert("Không đủ tiền! Hãy đi đập đá, bắt bọ hoặc câu cá kiếm thêm nhé.");
-  }
-}
-
-function claimEvent() {
-  if(player.eventItem >= 5) {
-    player.eventItem -= 5;
-    player.vehicle = '🦄'; player.speedBoost = 150;
-    document.getElementById('event-progress').innerText = player.eventItem;
-    alert("Tuyệt vời! Bạn đã nhận được Thú cưỡi Kỳ Lân 🦄 (+150 Tốc độ) từ Sự kiện Mùa Xuân!");
-    closeModal('eventModal');
-  } else {
-    alert("Bạn chưa thu thập đủ 5 Hoa Đào 🌸 trên bản đồ!");
-  }
-}
-
-updateUI();
+// Bắt đầu game
+addChatToHistory("Hệ Thống", "Chào mừng bạn đến với Thế Giới Nâng Cấp!");
 requestAnimationFrame(loop);
 </script>
 </body>
