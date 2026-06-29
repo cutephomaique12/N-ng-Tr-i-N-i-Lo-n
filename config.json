@@ -1,8 +1,12 @@
 {
-  "version": "1.0.1",
+  "version": "2.0.0",
   "plantPrices": {
     "potato": 8,
     "carrot": 12,
-    "wheat": 18
-  }
+    "wheat": 18,
+    "watermelon": 25,
+    "grape": 30
+  },
+  "petFoodPrice": 5,
+  "taskRewardMultiplier": 4
 }
