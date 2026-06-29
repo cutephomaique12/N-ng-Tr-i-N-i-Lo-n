@@ -3,899 +3,417 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>🌍 Thế Giới 2D</title>
+  <title>🌍 Thế Giới 2D: Kỷ Nguyên Mới</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
-    body {
-      background: #1a1a2e;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      overflow: hidden;
-      touch-action: none;
-      font-family: 'Segoe UI', sans-serif;
-    }
-    #gameContainer {
-      position: relative;
-      width: 100%;
-      max-width: 450px;
-      aspect-ratio: 9/16;
-      background: #87CEEB;
-      border-radius: 20px;
-      overflow: hidden;
-      box-shadow: 0 0 40px rgba(0,0,0,0.6);
-    }
-    canvas {
-      display: block;
-      width: 100%;
-      height: 100%;
-      background: #87CEEB;
-      touch-action: none;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background: #111; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; touch-action: none; color: white; }
+    #gameContainer { position: relative; width: 100%; max-width: 800px; height: 100%; background: #000; overflow: hidden; box-shadow: 0 0 20px rgba(0,0,0,1); }
+    canvas { display: block; width: 100%; height: 100%; touch-action: none; }
 
-    /* JOYSTICK */
-    #joystick {
-      position: absolute;
-      bottom: 30px;
-      left: 30px;
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.25);
-      backdrop-filter: blur(4px);
-      border: 2px solid rgba(255,255,255,0.4);
-      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-      touch-action: none;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    #joystick-knob {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      background: radial-gradient(circle, #fff 30%, #aaa);
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-      pointer-events: none;
-      transition: transform 0.02s;
-    }
+    /* UI Elements */
+    .ui-layer { position: absolute; pointer-events: none; top: 0; left: 0; width: 100%; height: 100%; }
+    .top-bar { display: flex; justify-content: space-between; padding: 10px; pointer-events: auto; }
+    .zone-info, .money-info { background: rgba(0,0,0,0.6); padding: 5px 15px; border-radius: 20px; backdrop-filter: blur(5px); font-weight: bold; border: 1px solid rgba(255,255,255,0.2); }
+    .money-info { color: #FFD700; }
+    
+    .menu-buttons { display: flex; gap: 5px; flex-wrap: wrap; max-width: 50%; justify-content: flex-end; }
+    .btn { background: rgba(0,0,0,0.6); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 8px 12px; border-radius: 15px; font-weight: bold; cursor: pointer; backdrop-filter: blur(5px); transition: 0.2s; pointer-events: auto; font-size: 12px;}
+    .btn:active { transform: scale(0.9); background: rgba(255,255,255,0.3); }
 
-    /* UI */
-    #ui {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      right: 10px;
-      display: flex;
-      justify-content: space-between;
-      color: white;
-      font-weight: bold;
-      text-shadow: 0 2px 8px rgba(0,0,0,0.6);
-      font-size: 14px;
-      pointer-events: none;
-    }
-    #zoneName {
-      background: rgba(0,0,0,0.5);
-      padding: 6px 16px;
-      border-radius: 30px;
-      backdrop-filter: blur(4px);
-    }
-    #friendsBtn {
-      pointer-events: auto;
-      background: rgba(0,0,0,0.5);
-      padding: 6px 16px;
-      border-radius: 30px;
-      backdrop-filter: blur(4px);
-      cursor: pointer;
-      border: none;
-      color: white;
-      font-weight: bold;
-      font-size: 14px;
-    }
+    /* Controls */
+    #joystick { position: absolute; bottom: 30px; left: 30px; width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.3); pointer-events: auto; display: flex; justify-content: center; align-items: center; }
+    #joystick-knob { width: 50px; height: 50px; border-radius: 50%; background: rgba(255,255,255,0.8); box-shadow: 0 0 15px rgba(0,0,0,0.5); pointer-events: none; }
+    
+    #actionBtn { position: absolute; bottom: 40px; right: 30px; width: 80px; height: 80px; border-radius: 50%; background: rgba(255, 107, 107, 0.8); border: 3px solid #ff4757; color: white; font-weight: bold; font-size: 14px; pointer-events: auto; display: flex; justify-content: center; align-items: center; box-shadow: 0 0 20px rgba(255, 71, 87, 0.5); opacity: 0.5; transition: 0.2s; text-align: center; line-height: 1.2; }
+    #actionBtn.active { opacity: 1; transform: scale(1.1); animation: pulse 1s infinite; }
+    
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(255, 71, 87, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0); } }
 
-    #friendList {
-      position: absolute;
-      top: 60px;
-      right: 10px;
-      background: rgba(0,0,0,0.7);
-      backdrop-filter: blur(8px);
-      border-radius: 16px;
-      padding: 12px 16px;
-      color: white;
-      min-width: 140px;
-      display: none;
-      border: 1px solid rgba(255,255,255,0.2);
-      font-size: 13px;
-    }
-    #friendList .title { font-weight: bold; margin-bottom: 6px; color: #ffd700; }
-    #friendList .item { padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
-    #friendList .item:last-child { border-bottom: none; }
-
-    /* Portal indicator */
-    #portalHint {
-      position: absolute;
-      bottom: 150px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0,0,0,0.6);
-      color: #ffd700;
-      padding: 6px 20px;
-      border-radius: 30px;
-      font-size: 13px;
-      font-weight: bold;
-      backdrop-filter: blur(4px);
-      border: 1px solid #ffd700;
-      display: none;
-      text-align: center;
-      pointer-events: none;
-    }
+    /* Modals */
+    .modal { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(20,20,30,0.95); border: 2px solid #555; padding: 20px; border-radius: 15px; width: 80%; max-width: 350px; display: none; pointer-events: auto; backdrop-filter: blur(10px); z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+    .modal h2 { text-align: center; margin-bottom: 15px; color: #FFD700; border-bottom: 1px solid #444; padding-bottom: 10px; }
+    .close-btn { position: absolute; top: 10px; right: 15px; color: red; font-weight: bold; cursor: pointer; font-size: 18px; }
+    .shop-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #333; }
+    .shop-item button { padding: 5px 10px; background: #2ed573; border: none; border-radius: 5px; color: white; font-weight: bold; }
+    .event-banner { background: linear-gradient(45deg, #ff9a9e, #fecfef); padding: 10px; border-radius: 10px; color: #333; text-align: center; margin-bottom: 10px; font-weight: bold; }
   </style>
 </head>
 <body>
 
 <div id="gameContainer">
   <canvas id="gameCanvas"></canvas>
-
-  <!-- UI -->
-  <div id="ui">
-    <span id="zoneName">🏠 Sảnh chính</span>
-    <button id="friendsBtn">👥 Bạn bè</button>
+  
+  <div class="ui-layer">
+    <div class="top-bar">
+      <div>
+        <div class="zone-info" id="ui-zone">🏠 Sảnh Chính</div>
+        <div class="money-info" style="margin-top:5px;">💰 <span id="ui-money">1000</span> | 🎒 <span id="ui-inv">0</span></div>
+      </div>
+      <div class="menu-buttons">
+        <div class="btn" onclick="openModal('shopModal')">🛒 Cửa Hàng</div>
+        <div class="btn" onclick="openModal('petModal')">🐾 Pet</div>
+        <div class="btn" onclick="openModal('socialModal')">👥 Xã Hội</div>
+        <div class="btn" onclick="openModal('eventModal')" style="border-color:#ff9a9e; color:#ff9a9e;">🌸 Sự Kiện</div>
+      </div>
+    </div>
+    <div id="joystick"><div id="joystick-knob"></div></div>
+    <div id="actionBtn">Đến gần<br>vật thể</div>
   </div>
-  <div id="friendList">
-    <div class="title">👥 Danh sách bạn</div>
-    <div class="item">🌻 Hoa Mặt Trời</div>
-    <div class="item">🐱 Meo Meo</div>
-    <div class="item">⚡ Siêu Nhân</div>
-    <div class="item">🍀 Cỏ May</div>
+
+  <!-- Modals -->
+  <div id="shopModal" class="modal">
+    <span class="close-btn" onclick="closeModal('shopModal')">✖</span>
+    <h2>🛒 Cửa Hàng Xe</h2>
+    <div class="shop-item"><span>🛹 Ván trượt (+20 Tốc)</span> <button onclick="buyItem('xe', 'Ván trượt', 500, 20)">500💰</button></div>
+    <div class="shop-item"><span>🚲 Xe đạp (+50 Tốc)</span> <button onclick="buyItem('xe', 'Xe đạp', 1500, 50)">1500💰</button></div>
+    <div class="shop-item"><span>🛸 Đĩa bay (+100 Tốc)</span> <button onclick="buyItem('xe', 'Đĩa bay', 5000, 100)">5000💰</button></div>
   </div>
 
-  <div id="portalHint">🚪 Bấm vào cổng để chuyển khu</div>
+  <div id="petModal" class="modal">
+    <span class="close-btn" onclick="closeModal('petModal')">✖</span>
+    <h2>🐾 Cửa Hàng Thú Cưng</h2>
+    <div class="shop-item"><span>🐶 Cún con</span> <button onclick="buyItem('pet', '🐶', 1000, 0)">1000💰</button></div>
+    <div class="shop-item"><span>🐱 Mèo mun</span> <button onclick="buyItem('pet', '🐱', 1000, 0)">1000💰</button></div>
+    <div class="shop-item"><span>🐉 Rồng lửa</span> <button onclick="buyItem('pet', '🐉', 10000, 0)">10000💰</button></div>
+  </div>
 
-  <!-- Joystick -->
-  <div id="joystick">
-    <div id="joystick-knob"></div>
+  <div id="socialModal" class="modal">
+    <span class="close-btn" onclick="closeModal('socialModal')">✖</span>
+    <h2>👥 Giao Lưu & Tri Kỷ</h2>
+    <p style="font-size:12px; color:#aaa; text-align:center; margin-bottom:10px;">(Trạng thái: Đang Online 🟢 15 người)</p>
+    <div class="shop-item"><span>💞 Tri kỷ: <b style="color:#ff4757">Chưa có</b></span> <button onclick="alert('Hãy tặng 10 🌸 cho người chơi khác để lập Tri Kỷ!')">Tạo</button></div>
+    <div style="font-size:12px; margin-top:10px; color:#2ed573;">✨ Quyền lợi Tri Kỷ: +15% Tốc độ di chuyển khi ở chung map, icon tên đặc biệt.</div>
+  </div>
+
+  <div id="eventModal" class="modal">
+    <span class="close-btn" onclick="closeModal('eventModal')">✖</span>
+    <h2>🌸 Lễ Hội Mùa Xuân</h2>
+    <div class="event-banner">Thu thập 5 Hoa Đào 🌸 rơi rải rác trên Map để nhận Thú cưỡi Kỳ Lân!</div>
+    <div style="text-align:center; font-size:20px; margin: 10px 0;">Tiến độ: <span id="event-progress">0</span>/5 🌸</div>
+    <button style="width:100%; padding:10px; background:#ff4757; color:white; border:none; border-radius:10px; font-weight:bold;" onclick="claimEvent()">Nhận Thưởng</button>
   </div>
 </div>
 
 <script>
-// ============================================================
-//  🌍  THẾ GIỚI 2D – DI CHUYỂN + CHUYỂN KHU + BẠN BÈ
-// ============================================================
-
+// ================= HỆ THỐNG CỐT LÕI =================
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
-const container = document.getElementById('gameContainer');
-
 let W, H;
+function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+window.addEventListener('resize', resize); resize();
 
-function resize() {
-  const rect = container.getBoundingClientRect();
-  canvas.width = rect.width * devicePixelRatio;
-  canvas.height = rect.height * devicePixelRatio;
-  W = canvas.width;
-  H = canvas.height;
-  ctx.scale(1, 1);
-}
-resize();
-window.addEventListener('resize', resize);
-
-// ---- PLAYER ----
+// Data Người chơi
 const player = {
-  x: W/2,
-  y: H/2,
-  radius: 18,
-  speed: 180, // pixels per second
-  color: '#FF6B6B',
-  dir: 0
+  x: 1000, y: 1000, radius: 18, baseSpeed: 200, speedBoost: 0,
+  color: '#FF6B6B', money: 1000, inventory: 0, eventItem: 0,
+  vehicle: null, pet: null, petX: 1000, petY: 1000,
+  triky: false
 };
 
-// ---- ZONES ----
+const camera = { x: 0, y: 0 };
+let currentZone = 'sanh';
+let particles = [];
+let onlinePlayers = []; // Mô phỏng người chơi khác
+
+// Quản lý Map Siêu Rộng (2000x2000)
 const zones = {
   'sanh': {
-    name: '🏠 Sảnh chính',
-    bg: '#87CEEB',
+    name: '🏠 Sảnh Chính', bg: '#87CEEB', width: 2000, height: 2000,
     portals: [
-      { x: 0.2, y: 0.5, target: 'nongtrai', label: '🌾 Nông trại' },
-      { x: 0.8, y: 0.5, target: 'rung', label: '🌲 Rừng' }
+      { x: 1800, y: 1000, target: 'nongtrai', label: 'Dịch chuyển: Nông Trại 🌾' },
+      { x: 200, y: 1000, target: 'rung', label: 'Dịch chuyển: Rừng Sâu 🌲' }
     ],
     objects: [
-      { x: 0.5, y: 0.3, emoji: '🏛️', size: 40 },
-      { x: 0.3, y: 0.7, emoji: '🌳', size: 30 },
-      { x: 0.7, y: 0.7, emoji: '🌳', size: 30 },
+      { type: 'shop', x: 1000, y: 800, emoji: '🏪', size: 80, label: 'Khu Mua Sắm' },
+      { type: 'event', x: 1200, y: 1200, emoji: '🌸', size: 30, action: 'Hái hoa' },
+      { type: 'event', x: 800, y: 900, emoji: '🌸', size: 30, action: 'Hái hoa' }
     ]
   },
   'nongtrai': {
-    name: '🌾 Nông trại',
-    bg: '#90EE90',
-    portals: [
-      { x: 0.1, y: 0.5, target: 'sanh', label: '🏠 Về sảnh' },
-      { x: 0.9, y: 0.5, target: 'cho', label: '🏪 Chợ' }
-    ],
+    name: '🌾 Nông Trại & Hồ Câu', bg: '#90EE90', width: 2000, height: 2000,
+    portals: [{ x: 200, y: 1000, target: 'sanh', label: 'Về Sảnh 🏠' }],
     objects: [
-      { x: 0.2, y: 0.2, emoji: '🐔', size: 30 },
-      { x: 0.8, y: 0.3, emoji: '🐄', size: 35 },
-      { x: 0.5, y: 0.8, emoji: '🌽', size: 25 },
+      { type: 'fish', x: 1500, y: 1500, emoji: '💧', size: 150, label: 'Hồ Câu Cá', action: 'Câu cá' },
+      { type: 'fish', x: 1600, y: 1400, emoji: '🐟', size: 30, action: 'Câu cá' },
+      { type: 'bug', x: 800, y: 500, emoji: '🦋', size: 30, action: 'Bắt bọ' },
+      { type: 'event', x: 1000, y: 1800, emoji: '🌸', size: 30, action: 'Hái hoa' }
     ]
   },
   'rung': {
-    name: '🌲 Rừng',
-    bg: '#2E8B57',
-    portals: [
-      { x: 0.5, y: 0.9, target: 'sanh', label: '🏠 Về sảnh' }
-    ],
+    name: '🌲 Rừng Khai Thác', bg: '#2E8B57', width: 2000, height: 2000,
+    portals: [{ x: 1800, y: 1000, target: 'sanh', label: 'Về Sảnh 🏠' }],
     objects: [
-      { x: 0.2, y: 0.3, emoji: '🐻', size: 40 },
-      { x: 0.7, y: 0.2, emoji: '🦊', size: 30 },
-      { x: 0.4, y: 0.6, emoji: '🌲', size: 35 },
-      { x: 0.8, y: 0.7, emoji: '🌲', size: 35 },
-    ]
-  },
-  'cho': {
-    name: '🏪 Chợ',
-    bg: '#F4A460',
-    portals: [
-      { x: 0.1, y: 0.5, target: 'nongtrai', label: '🌾 Về nông trại' }
-    ],
-    objects: [
-      { x: 0.3, y: 0.3, emoji: '🍎', size: 30 },
-      { x: 0.6, y: 0.4, emoji: '🥖', size: 30 },
-      { x: 0.5, y: 0.7, emoji: '🧺', size: 35 },
+      { type: 'rock', x: 500, y: 500, emoji: '🪨', size: 50, action: 'Đập đá' },
+      { type: 'rock', x: 700, y: 1500, emoji: '🪨', size: 60, action: 'Đập đá' },
+      { type: 'rock', x: 800, y: 800, emoji: '💎', size: 40, action: 'Đào ngọc' },
+      { type: 'event', x: 300, y: 300, emoji: '🌸', size: 30, action: 'Hái hoa' },
+      { type: 'event', x: 1500, y: 300, emoji: '🌸', size: 30, action: 'Hái hoa' }
     ]
   }
 };
 
-let currentZone = 'sanh';
-let playerX = 0.5, playerY = 0.5; // tỉ lệ % trên canvas
-
-// ---- JOYSTICK ----
+// ================= JOYSTICK & INPUT =================
 const joystick = document.getElementById('joystick');
 const knob = document.getElementById('joystick-knob');
-let joystickActive = false;
-let joyX = 0, joyY = 0;
-const maxDist = 40;
+const actionBtn = document.getElementById('actionBtn');
+let joyX = 0, joyY = 0, isMoving = false;
+let currentInteractObj = null;
 
-function getTouchPos(e) {
+joystick.addEventListener('touchstart', handleJoystick, {passive: false});
+joystick.addEventListener('touchmove', handleJoystick, {passive: false});
+joystick.addEventListener('touchend', () => { isMoving = false; joyX = 0; joyY = 0; knob.style.transform = 'translate(0,0)'; });
+
+function handleJoystick(e) {
+  e.preventDefault();
+  isMoving = true;
   const rect = joystick.getBoundingClientRect();
-  const touch = e.touches[0];
-  return { x: touch.clientX - rect.left - rect.width/2, y: touch.clientY - rect.top - rect.height/2 };
-}
-
-joystick.addEventListener('touchstart', (e) => {
-  e.preventDefault();
-  joystickActive = true;
-  const pos = getTouchPos(e);
-  updateJoystick(pos.x, pos.y);
-});
-
-joystick.addEventListener('touchmove', (e) => {
-  e.preventDefault();
-  if (!joystickActive) return;
-  const pos = getTouchPos(e);
-  updateJoystick(pos.x, pos.y);
-});
-
-joystick.addEventListener('touchend', (e) => {
-  e.preventDefault();
-  joystickActive = false;
-  joyX = 0; joyY = 0;
-  knob.style.transform = 'translate(0, 0)';
-});
-
-function updateJoystick(dx, dy) {
-  const dist = Math.sqrt(dx*dx + dy*dy);
+  const touch = Array.from(e.touches).find(t => t.clientX >= rect.left && t.clientX <= rect.right && t.clientY >= rect.top && t.clientY <= rect.bottom) || e.touches[0];
+  let dx = touch.clientX - rect.left - rect.width/2;
+  let dy = touch.clientY - rect.top - rect.height/2;
+  const dist = Math.hypot(dx, dy);
   const max = 40;
-  if (dist > max) { dx = dx / dist * max; dy = dy / dist * max; }
-  joyX = dx / max;
-  joyY = dy / max;
+  if(dist > max) { dx = (dx/dist)*max; dy = (dy/dist)*max; }
+  joyX = dx/max; joyY = dy/max;
   knob.style.transform = `translate(${dx}px, ${dy}px)`;
 }
 
-// ---- PORTALS ----
-function getPortals() {
-  return zones[currentZone].portals || [];
-}
-
-// ---- RENDER ----
-function draw() {
-  ctx.clearRect(0, 0, W, H);
-
-  // BG
-  ctx.fillStyle = zones[currentZone].bg || '#87CEEB';
-  ctx.fillRect(0, 0, W, H);
-
-  // Draw objects
-  const objs = zones[currentZone].objects || [];
-  objs.forEach(obj => {
-    const x = obj.x * W;
-    const y = obj.y * H;
-    ctx.font = obj.size + 'px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(obj.emoji, x, y);
-  });
-
-  // Draw portals
-  const portals = getPortals();
-  portals.forEach(p => {
-    const x = p.x * W;
-    const y = p.y * H;
-    // Portal circle
-    ctx.beginPath();
-    ctx.arc(x, y, 30, 0, Math.PI*2);
-    ctx.fillStyle = 'rgba(100, 200, 255, 0.3)';
-    ctx.fill();
-    ctx.strokeStyle = '#00BFFF';
-    ctx.lineWidth = 3;
-    ctx.stroke();
-    // Label
-    ctx.font = '14px sans-serif';
-    ctx.fillStyle = 'white';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'bottom';
-    ctx.shadowColor = 'black';
-    ctx.shadowBlur = 8;
-    ctx.fillText(p.label, x, y - 35);
-    ctx.shadowBlur = 0;
-    // Emoji icon
-    ctx.font = '24px sans-serif';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('🚪', x, y);
-  });
-
-  // ---- PLAYER ----
-  const px = playerX * W;
-  const py = playerY * H;
-  // shadow
-  ctx.beginPath();
-  ctx.arc(px+3, py+5, player.radius, 0, Math.PI*2);
-  ctx.fillStyle = 'rgba(0,0,0,0.2)';
-  ctx.fill();
-  // body
-  ctx.beginPath();
-  ctx.arc(px, py, player.radius, 0, Math.PI*2);
-  ctx.fillStyle = player.color;
-  ctx.fill();
-  ctx.strokeStyle = '#333';
-  ctx.lineWidth = 2;
-  ctx.stroke();
-  // face
-  ctx.font = '20px sans-serif';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillStyle = 'white';
-  ctx.fillText('😊', px, py-2);
-  // name
-  ctx.font = '12px sans-serif';
-  ctx.fillStyle = 'white';
-  ctx.shadowColor = 'black';
-  ctx.shadowBlur = 6;
-  ctx.fillText('Bạn', px, py - player.radius - 10);
-  ctx.shadowBlur = 0;
-
-  // Portal hint if near
-  let nearPortal = false;
-  portals.forEach(p => {
-    const dx = (p.x - playerX) * W;
-    const dy = (p.y - playerY) * H;
-    if (Math.sqrt(dx*dx + dy*dy) < 50) nearPortal = true;
-  });
-  document.getElementById('portalHint').style.display = nearPortal ? 'block' : 'none';
-
-  // Zone name
-  document.getElementById('zoneName').textContent = zones[currentZone].name;
-}
-
-// ---- UPDATE ----
-let lastTime = 0;
-
-function update(time) {
-  const dt = Math.min((time - lastTime) / 1000, 0.05);
-  lastTime = time;
-
-  if (joystickActive) {
-    const speed = player.speed / W; // % per second
-    playerX += joyX * speed * dt;
-    playerY += joyY * speed * dt;
-    // Clamp
-    playerX = Math.max(0.02, Math.min(0.98, playerX));
-    playerY = Math.max(0.02, Math.min(0.98, playerY));
-  }
-
-  // Check portal collision
-  const portals = getPortals();
-  portals.forEach(p => {
-    const dx = (p.x - playerX) * W;
-    const dy = (p.y - playerY) * H;
-    if (Math.sqrt(dx*dx + dy*dy) < 40) {
-      // Chuyển khu
-      if (currentZone !== p.target) {
-        currentZone = p.target;
-        playerX = 0.5;
-        playerY = 0.5;
-        // Rung động nhẹ
-        navigator.vibrate && navigator.vibrate(20);
-        // Cập nhật portal hint
-      }
+// Nút Hành Động
+actionBtn.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  if(!currentInteractObj) return;
+  
+  if(currentInteractObj.target) { // Portal
+    currentZone = currentInteractObj.target;
+    player.x = 1000; player.y = 1000; player.petX = 1000; player.petY = 1000;
+    createParticles(player.x, player.y, '#fff', 20);
+    spawnBots(); // Load bot mới
+  } 
+  else { // Mini-games & Sự kiện
+    let reward = 0, msg = "";
+    if(currentInteractObj.action === 'Đập đá' || currentInteractObj.action === 'Đào ngọc') { reward = Math.floor(Math.random()*50)+10; msg = `Nhận ${reward}💰`; createParticles(player.x, player.y, '#888', 10); }
+    if(currentInteractObj.action === 'Câu cá') { reward = Math.floor(Math.random()*100)+50; msg = `Câu được cá! Bán được ${reward}💰`; createParticles(player.x, player.y, '#00a8ff', 15); }
+    if(currentInteractObj.action === 'Bắt bọ') { reward = Math.floor(Math.random()*30)+10; msg = `Bắt được bọ! Nhận ${reward}💰`; createParticles(player.x, player.y, '#9c88ff', 10); }
+    if(currentInteractObj.action === 'Hái hoa') {
+      player.eventItem++;
+      document.getElementById('event-progress').innerText = player.eventItem;
+      msg = `Nhận 1 🌸!`; createParticles(player.x, player.y, '#ff9a9e', 20);
+      // Xóa hoa khỏi map
+      const zone = zones[currentZone];
+      zone.objects = zone.objects.filter(o => o !== currentInteractObj);
     }
-  });
-
-  draw();
-  requestAnimationFrame(update);
-}
-
-// ---- FRIEND LIST TOGGLE ----
-document.getElementById('friendsBtn').addEventListener('click', () => {
-  const fl = document.getElementById('friendList');
-  fl.style.display = fl.style.display === 'block' ? 'none' : 'block';
-});
-
-// ---- START ----
-requestAnimationFrame(update);
-
-// ---- RESIZE HANDLER ----
-window.addEventListener('resize', () => {
-  resize();
-  // reposition player if out of bounds
-  playerX = Math.max(0.02, Math.min(0.98, playerX));
-  playerY = Math.max(0.02, Math.min(0.98, playerY));
-});
-
-// ---- PREVENT SCROLL ----
-document.addEventListener('touchmove', (e) => {
-  if (e.target.closest('#gameContainer')) e.preventDefault();
-}, { passive: false });
-
-console.log('🌍 Game đã chạy! Dùng joystick để di chuyển, đến cổng để chuyển khu.');
-</script>
-</body>
-</html>    .toolbar .btn { padding: 5px 12px; font-size: 0.7rem; }
-
-    /* FARM GRID */
-    #farmGrid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; background: #a6c8a0; padding: 10px; border-radius: 28px; border: 4px solid #7f9f78; box-shadow: inset 0 0 0 3px #5d7a56; }
-    .cell { aspect-ratio: 1/1; background: #72a56b; border-radius: 14px; box-shadow: inset 0 -4px 0 #4d7a46; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 2rem; transition: 0.1s; cursor: pointer; border: 2px solid #5d8a55; position: relative; }
-    .cell:active { transform: scale(0.93); }
-    .cell .growth { position: absolute; bottom: 2px; right: 4px; background: #203a1b; color: #c6f0b0; font-size: 0.5rem; padding: 0 5px; border-radius: 10px; font-weight: bold; }
-    .cell .deco { font-size: 1.8rem; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2)); }
-
-    /* PET */
-    #petArea { display: flex; gap: 12px; justify-content: center; background: #b8d2b0; padding: 10px 8px; border-radius: 40px; margin: 8px 0; border: 3px solid #6d9463; flex-wrap: wrap; }
-    .pet-card { background: #f5efe6; padding: 6px 14px 10px; border-radius: 40px; box-shadow: inset 0 -4px 0 #b7a08b; display: flex; flex-direction: column; align-items: center; flex: 1; min-width: 80px; }
-    .pet-card .emoji { font-size: 2.2rem; }
-    .pet-card .name { font-weight: bold; font-size: 0.65rem; color: #2d3e24; }
-    .pet-card .mood { font-size: 0.6rem; color: #674f3a; }
-    .pet-card .btn { font-size: 0.55rem; padding: 3px 10px; margin-top: 3px; }
-
-    /* SHOP & TASK */
-    #shopPanel, #taskPanel { background: #ded0bf; border-radius: 28px; padding: 8px 14px; margin-top: 8px; border: 2px solid #b9a48e; }
-    #shopPanel { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
-    #shopPanel .btn { font-size: 0.6rem; padding: 4px 10px; }
-    #taskPanel { display: flex; justify-content: space-between; font-size: 0.7rem; color: #2d241c; flex-wrap: wrap; }
-    #taskPanel span { background: #f5ede4; padding: 2px 12px; border-radius: 40px; margin: 2px 0; }
-
-    #footerBar { display: flex; justify-content: space-between; margin: 8px 0 4px; padding: 0 8px; }
-    #versionInfo { font-size: 0.6rem; color: #5d4a38; background: #dfcebc; padding: 4px 14px; border-radius: 30px; }
-
-    /* RAID BANNER */
-    #raidBanner { background: linear-gradient(90deg, #a13022, #cc4a3a); color: #ffecbb; padding: 8px 14px; border-radius: 40px; text-align: center; font-weight: bold; margin: 4px 0 6px; display: none; align-items: center; justify-content: space-between; border: 3px solid #f5b38b; box-shadow: 0 0 16px #ff7f4f; }
-    #raidBanner .btn { font-size: 0.7rem; padding: 4px 14px; }
-
-    /* NOTIFICATION */
-    #notif { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #2d1f16; color: #ffecdb; padding: 10px 24px; border-radius: 40px; font-weight: bold; box-shadow: 0 8px 24px rgba(0,0,0,0.6); display: none; z-index: 999; max-width: 90%; text-align: center; border: 2px solid #b88d6e; }
-    #notif.show { display: block; animation: popIn 0.3s ease; }
-    @keyframes popIn { 0% { opacity: 0; transform: translateX(-50%) scale(0.8); } 100% { opacity: 1; transform: translateX(-50%) scale(1); } }
-
-    @media (max-width: 440px) { .cell { font-size: 1.5rem; } .toolbar .btn { font-size: 0.55rem; padding: 3px 8px; } #header .info { font-size: 0.65rem; padding: 3px 10px; } }
-  </style>
-</head>
-<body>
-
-<div id="app">
-  <div id="header">
-    <div class="info">🪙 <span id="goldDisplay">0</span> | ⭐ <span id="levelDisplay">1</span></div>
-    <div class="user">👤 <span id="usernameDisplay">Guest</span> <button id="logoutBtn" class="btn btn-sm btn-danger" style="padding:2px 10px;">✕</button></div>
-  </div>
-
-  <!-- LOGIN -->
-  <div id="loginScreen">
-    <h2>🌾 Nông Trại</h2>
-    <input type="text" id="loginUser" placeholder="Tên đăng nhập" value="nongdan">
-    <input type="password" id="loginPass" placeholder="Mật khẩu" value="123456">
-    <div id="loginError">⚠️ Sai tài khoản hoặc mật khẩu</div>
-    <div class="btn-group">
-      <button class="btn btn-success" id="loginBtn">🔓 Đăng nhập</button>
-      <button class="btn btn-info" id="registerBtn">📝 Đăng ký</button>
-    </div>
-  </div>
-
-  <!-- GAME -->
-  <div id="gameScreen">
-    <div class="toolbar">
-      <button class="btn btn-success" id="plantBtn">🌱 Trồng</button>
-      <button class="btn btn-warning" id="harvestBtn">🧺 Thu hoạch</button>
-      <button class="btn btn-info" id="shopBtn">🏪 Shop</button>
-      <button class="btn" id="taskBtn">📋 Nhiệm vụ</button>
-    </div>
-
-    <div id="farmGrid"></div>
-
-    <div id="petArea">
-      <div class="pet-card" data-pet="0"><span class="emoji">🐥</span><span class="name">Gà vàng</span><span class="mood">😊 Vui vẻ</span><button class="btn btn-sm btn-success feedPetBtn">🍞 Cho ăn</button></div>
-      <div class="pet-card" data-pet="1"><span class="emoji">🐕</span><span class="name">Chó cỏ</span><span class="mood">😄 Hạnh phúc</span><button class="btn btn-sm btn-success feedPetBtn">🦴 Cho ăn</button></div>
-      <div class="pet-card" data-pet="2"><span class="emoji">🐱</span><span class="name">Mèo lười</span><span class="mood">😺 Tinh nghịch</span><button class="btn btn-sm btn-success feedPetBtn">🐟 Cho ăn</button></div>
-    </div>
-
-    <div id="raidBanner"><span>👹 BĂNG CƯỚP ĐANG TẤN CÔNG!</span><button class="btn btn-danger" id="defendBtn">🛡️ Đánh đuổi</button></div>
-
-    <div id="shopPanel">
-      <button class="btn btn-sm btn-success" data-seed="potato">🥔 Khoai (8🪙)</button>
-      <button class="btn btn-sm btn-success" data-seed="carrot">🥕 Cà rốt (12🪙)</button>
-      <button class="btn btn-sm btn-success" data-seed="wheat">🌾 Lúa (18🪙)</button>
-      <button class="btn btn-sm btn-success" data-seed="watermelon">🍉 Dưa hấu (25🪙)</button>
-      <button class="btn btn-sm btn-success" data-seed="grape">🍇 Nho (30🪙)</button>
-      <button class="btn btn-sm btn-info" id="buyPetFoodBtn">🍖 Thức ăn pet (5🪙)</button>
-    </div>
-
-    <div id="taskPanel">
-      <span>📋 Nhiệm vụ: <span id="taskDesc">Trồng 5 cây</span></span>
-      <span>🎯 Tiến độ: <span id="taskProgress">0/5</span></span>
-      <span>🏆 Thưởng: <span id="taskReward">+20🪙</span></span>
-    </div>
-
-    <div id="footerBar">
-      <span id="versionInfo">📦 v2.0.0</span>
-      <button class="btn btn-sm btn-info" id="saveBtn">💾 Lưu</button>
-    </div>
-  </div>
-</div>
-
-<div id="notif"></div>
-
-<script>
-// ============================================================
-//  🚀  NÔNG TRẠI NÂNG CẤP - V2.0
-// ============================================================
-
-// ---- CẤU HÌNH ----
-const CONFIG = {
-  version: '2.0.0',
-  remoteConfigUrl: 'https://raw.githubusercontent.com/cutephomaique12/N-ng-Tr-i-N-i-Lo-n/refs/heads/main/config.json',
-};
-
-// ---- CÂY TRỒNG ----
-const PLANTS = {
-  potato: { name: 'Khoai tây', emoji: '🥔', growTime: 8, price: 8, sell: 18, exp: 4 },
-  carrot: { name: 'Cà rốt', emoji: '🥕', growTime: 12, price: 12, sell: 28, exp: 6 },
-  wheat: { name: 'Lúa mì', emoji: '🌾', growTime: 16, price: 18, sell: 40, exp: 9 },
-  watermelon: { name: 'Dưa hấu', emoji: '🍉', growTime: 22, price: 25, sell: 55, exp: 14 },
-  grape: { name: 'Nho', emoji: '🍇', growTime: 18, price: 30, sell: 65, exp: 12 },
-};
-
-// ---- STATE ----
-let state = {
-  username: '', gold: 120, level: 1, exp: 0,
-  farm: [],
-  pets: [
-    { name: 'Gà vàng', emoji: '🐥', hunger: 80, happiness: 80, age: 0 },
-    { name: 'Chó cỏ', emoji: '🐕', hunger: 70, happiness: 85, age: 0 },
-    { name: 'Mèo lười', emoji: '🐱', hunger: 75, happiness: 75, age: 0 }
-  ],
-  houseCount: 0, decoCount: 0,
-  task: { type: 'plant', target: 5, progress: 0, reward: 20, done: false },
-  isRaid: false,
-  lastSave: Date.now()
-};
-
-// ---- NOTIFICATION ----
-function notif(msg) { const el = document.getElementById('notif'); el.textContent = msg; el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 2500); }
-
-// ---- FARM ----
-function createEmptyFarm() { return Array(36).fill(null).map(() => ({ type: 'empty' })); }
-
-// ---- SAVE / LOAD ----
-function saveGame() {
-  if (!state.username) return;
-  localStorage.setItem('farmGame_v2_' + state.username, JSON.stringify(state));
-}
-function loadGame(username) {
-  const raw = localStorage.getItem('farmGame_v2_' + username);
-  if (raw) { try { const data = JSON.parse(raw); Object.assign(state, data); return true; } catch(e) {} }
-  return false;
-}
-
-// ---- LOGIN ----
-function registerUser(u, p) {
-  if (!u || !p) return false;
-  const users = JSON.parse(localStorage.getItem('farmUsers') || '{}');
-  if (users[u]) return false;
-  users[u] = p;
-  localStorage.setItem('farmUsers', JSON.stringify(users));
-  return true;
-}
-function loginUser(u, p) {
-  const users = JSON.parse(localStorage.getItem('farmUsers') || '{}');
-  return users[u] && users[u] === p;
-}
-
-// ---- RENDER ----
-function renderFarm() {
-  const grid = document.getElementById('farmGrid');
-  grid.innerHTML = '';
-  for (let i = 0; i < 36; i++) {
-    const cell = document.createElement('div');
-    cell.className = 'cell';
-    cell.dataset.index = i;
-    const data = state.farm[i];
-    if (data.type === 'plant') {
-      const plant = PLANTS[data.plantType];
-      const elapsed = (Date.now() - data.plantedAt) / 1000;
-      const progress = Math.min(1, elapsed / plant.growTime);
-      cell.innerHTML = `<span>${progress >= 1 ? plant.emoji : '🌱'}</span>`;
-      if (progress < 1) cell.innerHTML += `<span class="growth">${Math.floor(progress*100)}%</span>`;
-      else cell.innerHTML += `<span class="growth">✅</span>`;
-    } else if (data.type === 'house') { cell.innerHTML = '<span class="deco">🏡</span>'; }
-    else if (data.type === 'deco') { cell.innerHTML = `<span class="deco">${data.emoji || '🌷'}</span>`; }
-    else { cell.innerHTML = '<span style="opacity:0.15;font-size:0.8rem;">·</span>'; }
-    cell.addEventListener('click', () => onCellClick(i));
-    grid.appendChild(cell);
+    
+    if(reward > 0) { player.money += reward; player.inventory++; updateUI(); }
+    showFloatingText(msg, player.x, player.y - 40);
   }
-}
+});
 
+// ================= LOGIC & RENDER =================
 function updateUI() {
-  document.getElementById('goldDisplay').textContent = state.gold;
-  document.getElementById('levelDisplay').textContent = state.level;
-  document.getElementById('usernameDisplay').textContent = state.username;
-  updatePetUI();
-  updateTaskUI();
+  document.getElementById('ui-zone').innerText = zones[currentZone].name;
+  document.getElementById('ui-money').innerText = player.money;
+  document.getElementById('ui-inv').innerText = player.inventory;
 }
 
-function updatePetUI() {
-  document.querySelectorAll('.pet-card').forEach((card, idx) => {
-    const pet = state.pets[idx];
-    if (!pet) return;
-    const mood = pet.happiness > 70 ? '😊' : (pet.happiness > 40 ? '😐' : '😢');
-    card.querySelector('.mood').textContent = mood + ' ' + (pet.happiness > 70 ? 'Vui vẻ' : (pet.happiness > 40 ? 'Bth' : 'Buồn'));
-  });
+function spawnBots() {
+  onlinePlayers = [];
+  for(let i=0; i<5; i++) {
+    onlinePlayers.push({
+      x: Math.random() * 1500 + 250, y: Math.random() * 1500 + 250,
+      tx: 0, ty: 0, wait: 0,
+      name: ['Boy9x', 'HoaMocLan', 'Doraemon', 'Nobita', 'GigaChad'][Math.floor(Math.random()*5)]
+    });
+  }
 }
+spawnBots();
 
-function updateTaskUI() {
-  const t = state.task;
-  document.getElementById('taskDesc').textContent = t.type === 'plant' ? 'Trồng ' + t.target + ' cây' : 'Thu hoạch ' + t.target + ' cây';
-  document.getElementById('taskProgress').textContent = t.progress + '/' + t.target;
-  document.getElementById('taskReward').textContent = '+' + t.reward + '🪙';
-  if (t.done) document.getElementById('taskProgress').textContent = '✅ HOÀN THÀNH!';
-}
-
-// ---- CELL CLICK ----
-function onCellClick(index) {
-  const data = state.farm[index];
-  if (data.type === 'plant') {
-    const plant = PLANTS[data.plantType];
-    const elapsed = (Date.now() - data.plantedAt) / 1000;
-    if (elapsed >= plant.growTime) {
-      state.gold += plant.sell;
-      state.exp += plant.exp;
-      state.farm[index] = { type: 'empty' };
-      // task progress
-      if (state.task.type === 'harvest' && !state.task.done) {
-        state.task.progress++;
-        if (state.task.progress >= state.task.target) { state.task.done = true; state.gold += state.task.reward; notif('🎉 Hoàn thành nhiệm vụ! +' + state.task.reward + ' vàng'); }
-      }
-      renderFarm(); updateUI(); checkLevelUp(); saveGame();
-      notif('🧺 Thu hoạch +' + plant.sell + '🪙');
-      return;
-    } else { notif('🌱 Còn ' + Math.ceil(plant.growTime - elapsed) + 's nữa'); }
+function createParticles(x, y, color, count) {
+  for(let i=0; i<count; i++) {
+    particles.push({
+      x: x, y: y,
+      vx: (Math.random()-0.5)*200, vy: (Math.random()-0.5)*200,
+      life: 1.0, color: color
+    });
   }
 }
 
-// ---- TRỒNG CÂY ----
-function plantSeed(type) {
-  const idx = state.farm.findIndex(c => c.type === 'empty');
-  if (idx === -1) { notif('❌ Hết ô trống!'); return; }
-  const plant = PLANTS[type];
-  if (!plant) return;
-  if (state.gold < plant.price) { notif('❌ Cần ' + plant.price + ' vàng'); return; }
-  state.gold -= plant.price;
-  state.farm[idx] = { type: 'plant', plantType: type, plantedAt: Date.now() };
-  // task
-  if (state.task.type === 'plant' && !state.task.done) {
-    state.task.progress++;
-    if (state.task.progress >= state.task.target) { state.task.done = true; state.gold += state.task.reward; notif('🎉 Hoàn thành nhiệm vụ! +' + state.task.reward + ' vàng'); }
-  }
-  renderFarm(); updateUI(); checkLevelUp(); saveGame();
-  notif('🌱 Đã trồng ' + plant.name);
+function showFloatingText(text, x, y) {
+  particles.push({ x: x, y: y, text: text, life: 1.5, vy: -50, vx: 0, isText: true });
 }
 
-// ---- THU HOẠCH HÀNG LOẠT ----
-function harvestAll() {
-  let count = 0;
-  for (let i = 0; i < state.farm.length; i++) {
-    const data = state.farm[i];
-    if (data.type === 'plant') {
-      const plant = PLANTS[data.plantType];
-      if ((Date.now() - data.plantedAt) / 1000 >= plant.growTime) {
-        state.gold += plant.sell; state.exp += plant.exp;
-        state.farm[i] = { type: 'empty' }; count++;
-      }
+let lastTime = performance.now();
+function loop(time) {
+  const dt = (time - lastTime) / 1000;
+  lastTime = time;
+  
+  const zone = zones[currentZone];
+  
+  // Player Movement
+  if(isMoving) {
+    const totalSpeed = player.baseSpeed + player.speedBoost + (player.triky ? 30 : 0);
+    player.x += joyX * totalSpeed * dt;
+    player.y += joyY * totalSpeed * dt;
+    player.x = Math.max(50, Math.min(zone.width - 50, player.x));
+    player.y = Math.max(50, Math.min(zone.height - 50, player.y));
+  }
+  
+  // Pet Movement (Lerp)
+  if(player.pet) {
+    player.petX += (player.x - 30 - player.petX) * 2 * dt;
+    player.petY += (player.y + 20 - player.petY) * 2 * dt;
+  }
+
+  // Camera Follow
+  camera.x = player.x - W/2;
+  camera.y = player.y - H/2;
+  // Giới hạn camera không ra khỏi viền map
+  camera.x = Math.max(0, Math.min(zone.width - W, camera.x));
+  camera.y = Math.max(0, Math.min(zone.height - H, camera.y));
+
+  // Phát hiện tương tác
+  currentInteractObj = null;
+  let nearestDist = 100;
+  
+  [...zone.objects, ...zone.portals].forEach(obj => {
+    const dist = Math.hypot(player.x - obj.x, player.y - obj.y);
+    if(dist < nearestDist && obj.type !== 'shop') { // Bỏ qua shop vì nó to
+      nearestDist = dist;
+      currentInteractObj = obj;
     }
-  }
-  if (count === 0) { notif('🌾 Chưa có cây nào sẵn sàng'); return; }
-  if (state.task.type === 'harvest' && !state.task.done) {
-    state.task.progress += count;
-    if (state.task.progress >= state.task.target) { state.task.done = true; state.gold += state.task.reward; notif('🎉 Hoàn thành nhiệm vụ! +' + state.task.reward + ' vàng'); }
-  }
-  renderFarm(); updateUI(); checkLevelUp(); saveGame();
-  notif('🧺 Thu hoạch ' + count + ' cây');
-}
-
-// ---- LEVEL UP ----
-function checkLevelUp() {
-  const need = state.level * 18;
-  while (state.exp >= need) { state.exp -= need; state.level++; notif('🎉 LÊN CẤP ' + state.level + '!'); }
-}
-
-// ---- PET ----
-function feedPet(idx) {
-  const pet = state.pets[idx];
-  if (!pet) return;
-  if (state.gold < 5) { notif('❌ Cần 5 vàng mua thức ăn'); return; }
-  state.gold -= 5;
-  pet.hunger = Math.min(100, pet.hunger + 25);
-  pet.happiness = Math.min(100, pet.happiness + 15);
-  updateUI(); saveGame();
-  notif('🍽️ Đã cho ' + pet.name + ' ăn!');
-}
-
-// ---- RAID ----
-let raidInterval = null;
-function startRaidTimer() {
-  if (raidInterval) clearInterval(raidInterval);
-  raidInterval = setInterval(() => {
-    if (state.isRaid) return;
-    if (Math.random() < 0.25) {
-      state.isRaid = true;
-      document.getElementById('raidBanner').style.display = 'flex';
-    }
-  }, 18000);
-}
-function defendRaid() {
-  if (!state.isRaid) return;
-  state.isRaid = false;
-  document.getElementById('raidBanner').style.display = 'none';
-  const reward = Math.floor(Math.random() * 15) + 8;
-  state.gold += reward;
-  notif('🛡️ Đánh đuổi thành công! +' + reward + ' vàng');
-  updateUI(); saveGame();
-}
-function ignoreRaid() {
-  if (!state.isRaid) return;
-  state.isRaid = false;
-  document.getElementById('raidBanner').style.display = 'none';
-  const lost = Math.floor(Math.random() * 15) + 8;
-  state.gold = Math.max(0, state.gold - lost);
-  notif('💔 Mất ' + lost + ' vàng do băng cướp');
-  updateUI(); saveGame();
-}
-setInterval(() => { if (state.isRaid) ignoreRaid(); }, 25000);
-
-// ---- TASK ----
-function resetTask() {
-  const types = ['plant', 'harvest'];
-  const type = types[Math.floor(Math.random() * types.length)];
-  const target = Math.floor(Math.random() * 5) + 4;
-  const reward = target * 4 + 4;
-  state.task = { type, target, progress: 0, reward, done: false };
-  updateTaskUI();
-}
-
-// ---- SHOW GAME ----
-function showGame() {
-  document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('gameScreen').style.display = 'block';
-  renderFarm(); updateUI(); startRaidTimer(); resetTask();
-  setInterval(() => {
-    state.pets.forEach(p => { p.happiness = Math.min(100, p.happiness + (p.hunger > 60 ? 1 : -1)); if (p.happiness < 15) p.happiness = 15; });
-    updatePetUI();
-    if (Math.random() < 0.12) { state.gold += Math.floor(Math.random() * 3) + 1; updateUI(); }
-  }, 7000);
-}
-
-// ---- INIT ----
-function initGame() {
-  if (state.farm.length === 0) state.farm = createEmptyFarm();
-  // đặt vài deco ban đầu
-  if (state.farm.every(c => c.type === 'empty')) {
-    state.farm[0] = { type: 'deco', emoji: '🌳' };
-    state.farm[35] = { type: 'deco', emoji: '🌸' };
-  }
-  renderFarm(); updateUI(); updatePetUI();
-
-  document.getElementById('plantBtn').addEventListener('click', () => {
-    const type = prompt('Chọn cây: potato, carrot, wheat, watermelon, grape', 'potato');
-    if (type && PLANTS[type]) plantSeed(type);
-  });
-  document.getElementById('harvestBtn').addEventListener('click', harvestAll);
-  document.getElementById('shopBtn').addEventListener('click', () => {
-    document.getElementById('shopPanel').style.display = document.getElementById('shopPanel').style.display === 'none' ? 'flex' : 'none';
-  });
-  document.getElementById('taskBtn').addEventListener('click', () => {
-    if (state.task.done) { notif('🎉 Nhiệm vụ đã hoàn thành!'); return; }
-    notif('📋 ' + (state.task.type === 'plant' ? 'Trồng' : 'Thu hoạch') + ' ' + state.task.target + ' cây');
-  });
-  document.getElementById('defendBtn').addEventListener('click', defendRaid);
-  document.getElementById('saveBtn').addEventListener('click', () => { saveGame(); notif('💾 Đã lưu!'); });
-  document.getElementById('logoutBtn').addEventListener('click', () => {
-    if (confirm('Đăng xuất?')) { state.username = ''; document.getElementById('loginScreen').style.display = 'flex'; document.getElementById('gameScreen').style.display = 'none'; clearInterval(raidInterval); }
   });
 
-  // Shop buttons
-  document.querySelectorAll('#shopPanel [data-seed]').forEach(btn => {
-    btn.addEventListener('click', () => plantSeed(btn.dataset.seed));
-  });
-  document.getElementById('buyPetFoodBtn').addEventListener('click', () => {
-    if (state.gold < 5) { notif('❌ Cần 5 vàng'); return; }
-    state.gold -= 5;
-    state.pets.forEach(p => { p.hunger = Math.min(100, p.hunger + 10); p.happiness = Math.min(100, p.happiness + 5); });
-    updateUI(); updatePetUI(); saveGame();
-    notif('🍖 Đã mua thức ăn cho tất cả pet!');
-  });
-
-  document.querySelectorAll('.feedPetBtn').forEach((btn, idx) => {
-    btn.addEventListener('click', (e) => { e.stopPropagation(); feedPet(idx); });
-  });
-
-  // Check remote config
-  fetch(CONFIG.remoteConfigUrl).then(r => r.json()).then(data => {
-    if (data.version && data.version !== CONFIG.version) {
-      document.getElementById('versionInfo').textContent = '📦 v' + data.version + ' (có cập nhật)';
-    }
-  }).catch(() => {});
-}
-
-// ---- LOGIN EVENTS ----
-document.getElementById('loginBtn').addEventListener('click', () => {
-  const u = document.getElementById('loginUser').value.trim();
-  const p = document.getElementById('loginPass').value.trim();
-  if (!u || !p) { notif('Vui lòng nhập đầy đủ'); return; }
-  if (loginUser(u, p)) {
-    document.getElementById('loginError').style.display = 'none';
-    if (!loadGame(u)) {
-      state.username = u; state.gold = 120; state.level = 1; state.exp = 0;
-      state.farm = createEmptyFarm(); state.pets = [
-        { name: 'Gà vàng', emoji: '🐥', hunger: 80, happiness: 80, age: 0 },
-        { name: 'Chó cỏ', emoji: '🐕', hunger: 70, happiness: 85, age: 0 },
-        { name: 'Mèo lười', emoji: '🐱', hunger: 75, happiness: 75, age: 0 }
-      ];
-      state.houseCount = 0; state.decoCount = 0;
-      saveGame();
-    }
-    showGame(); initGame();
+  if(currentInteractObj) {
+    actionBtn.classList.add('active');
+    actionBtn.innerHTML = currentInteractObj.target ? "Vào Cổng" : currentInteractObj.action;
   } else {
-    document.getElementById('loginError').style.display = 'block';
-    document.getElementById('loginError').textContent = '❌ Sai tên hoặc mật khẩu';
+    actionBtn.classList.remove('active');
+    actionBtn.innerHTML = "Đến gần<br>vật thể";
   }
-});
 
-document.getElementById('registerBtn').addEventListener('click', () => {
-  const u = document.getElementById('loginUser').value.trim();
-  const p = document.getElementById('loginPass').value.trim();
-  if (!u || !p) { notif('Vui lòng nhập đầy đủ'); return; }
-  if (registerUser(u, p)) { notif('✅ Đăng ký thành công! Hãy đăng nhập.'); document.getElementById('loginError').style.display = 'none'; }
-  else { notif('❌ Tên đã tồn tại!'); }
-});
+  // Cập nhật Bots
+  onlinePlayers.forEach(bot => {
+    if(bot.wait > 0) bot.wait -= dt;
+    else {
+      if(Math.hypot(bot.tx - bot.x, bot.ty - bot.y) < 10) {
+        bot.tx = bot.x + (Math.random()-0.5)*300;
+        bot.ty = bot.y + (Math.random()-0.5)*300;
+        bot.wait = Math.random()*2;
+      } else {
+        bot.x += (bot.tx > bot.x ? 1 : -1) * 100 * dt;
+        bot.y += (bot.ty > bot.y ? 1 : -1) * 100 * dt;
+      }
+    }
+  });
 
-// Auto login
-(function() {
-  const users = JSON.parse(localStorage.getItem('farmUsers') || '{}');
-  const keys = Object.keys(users);
-  if (keys.length > 0) {
-    document.getElementById('loginUser').value = keys[0];
-    document.getElementById('loginPass').value = users[keys[0]];
-    document.getElementById('loginBtn').click();
+  // RENDER
+  ctx.clearRect(0, 0, W, H);
+  ctx.save();
+  ctx.translate(-camera.x, -camera.y);
+  
+  // Vẽ Background lưới để thấy map rộng
+  ctx.fillStyle = zone.bg;
+  ctx.fillRect(0, 0, zone.width, zone.height);
+  ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+  for(let i=0; i<zone.width; i+=100) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,zone.height); ctx.stroke(); }
+  for(let i=0; i<zone.height; i+=100) { ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(zone.width,i); ctx.stroke(); }
+
+  // Vẽ Objects
+  zone.objects.forEach(obj => {
+    ctx.font = `${obj.size}px sans-serif`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(obj.emoji, obj.x, obj.y);
+    if(obj.label) {
+      ctx.font = '14px sans-serif'; ctx.fillStyle = 'white';
+      ctx.fillText(obj.label, obj.x, obj.y - obj.size/2 - 10);
+    }
+  });
+
+  // Vẽ Portals
+  zone.portals.forEach(p => {
+    ctx.beginPath(); ctx.arc(p.x, p.y, 40, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(255, 215, 0, 0.3)'; ctx.fill();
+    ctx.lineWidth = 3; ctx.strokeStyle = '#FFD700'; ctx.stroke();
+    ctx.font = '30px sans-serif'; ctx.fillText('🌀', p.x, p.y);
+    ctx.font = '14px bold sans-serif'; ctx.fillStyle = 'white';
+    ctx.fillText(p.label, p.x, p.y - 50);
+  });
+
+  // Vẽ Bots (Mô phỏng Online)
+  onlinePlayers.forEach(bot => {
+    ctx.beginPath(); ctx.arc(bot.x, bot.y, 18, 0, Math.PI*2);
+    ctx.fillStyle = '#a4b0be'; ctx.fill(); ctx.stroke();
+    ctx.font = '12px sans-serif'; ctx.fillStyle = 'white';
+    ctx.fillText(bot.name, bot.x, bot.y - 30);
+  });
+
+  // Vẽ Nhân vật & Pet
+  if(player.pet) {
+    ctx.font = '25px sans-serif';
+    ctx.fillText(player.pet, player.petX, player.petY);
+  }
+  
+  if(player.vehicle) {
+    ctx.font = '40px sans-serif';
+    ctx.fillText(player.vehicle === 'Ván trượt'?'🛹':(player.vehicle === 'Xe đạp'?'🚲':'🛸'), player.x, player.y+10);
+  }
+  
+  ctx.beginPath(); ctx.arc(player.x, player.y, player.radius, 0, Math.PI*2);
+  ctx.fillStyle = player.color; ctx.fill();
+  ctx.lineWidth = 2; ctx.strokeStyle = '#fff'; ctx.stroke();
+  ctx.font = '20px sans-serif'; ctx.fillText('😎', player.x, player.y);
+  ctx.font = '14px bold sans-serif'; ctx.fillStyle = '#FFD700';
+  ctx.fillText('Bạn', player.x, player.y - player.radius - 15);
+
+  // Vẽ Particles
+  for(let i=particles.length-1; i>=0; i--) {
+    let p = particles[i];
+    p.x += p.vx * dt; p.y += p.vy * dt; p.life -= dt;
+    ctx.globalAlpha = Math.max(0, p.life);
+    if(p.isText) {
+      ctx.font = 'bold 16px sans-serif'; ctx.fillStyle = '#FFD700';
+      ctx.shadowColor = 'black'; ctx.shadowBlur = 4;
+      ctx.fillText(p.text, p.x, p.y);
+      ctx.shadowBlur = 0;
+    } else {
+      ctx.fillStyle = p.color;
+      ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    if(p.life <= 0) particles.splice(i, 1);
+  }
+
+  ctx.restore();
+  requestAnimationFrame(loop);
+}
+
+// ================= GIAO DIỆN & LOGIC NGOÀI =================
+function openModal(id) { document.getElementById(id).style.display = 'block'; }
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+function buyItem(type, name, cost, boost) {
+  if(player.money >= cost) {
+    player.money -= cost;
+    if(type === 'xe') { player.vehicle = name; player.speedBoost = boost; alert(`Đã trang bị ${name}! Tốc độ +${boost}`); }
+    if(type === 'pet') { player.pet = name; alert(`Nhận nuôi ${name} thành công!`); }
+    updateUI();
   } else {
-    document.getElementById('loginScreen').style.display = 'flex';
+    alert("Không đủ tiền! Hãy đi đập đá, bắt bọ hoặc câu cá kiếm thêm nhé.");
   }
-})();
+}
+
+function claimEvent() {
+  if(player.eventItem >= 5) {
+    player.eventItem -= 5;
+    player.vehicle = '🦄'; player.speedBoost = 150;
+    document.getElementById('event-progress').innerText = player.eventItem;
+    alert("Tuyệt vời! Bạn đã nhận được Thú cưỡi Kỳ Lân 🦄 (+150 Tốc độ) từ Sự kiện Mùa Xuân!");
+    closeModal('eventModal');
+  } else {
+    alert("Bạn chưa thu thập đủ 5 Hoa Đào 🌸 trên bản đồ!");
+  }
+}
+
+updateUI();
+requestAnimationFrame(loop);
 </script>
 </body>
-  </html>
+</html>
